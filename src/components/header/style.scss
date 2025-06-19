@@ -1,0 +1,108 @@
+.menu {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  font-size: inherit;
+
+  .left-menu {
+    width: 70%;
+    height: auto;
+    display: flex;
+    justify-content: left;
+    margin: 1rem;
+    .health {
+      text-decoration: none;
+      color: black;
+      width: 10rem;
+      height: 3rem;
+      display: flex;
+      img {
+        width: auto;
+        height: 2.8rem;
+        padding-top: 1rem;
+        border-radius: 50%;
+        border: none;
+      }
+
+      &:hover{
+        cursor: pointer;
+        transform: scale(1.05);
+      }
+
+      h4 {
+        font-size: 1.2rem;
+        font-weight: normal;
+        margin-left: 0.6rem;
+      }
+    }
+    .function {
+      width: 60%;
+      height: 4rem;
+      display: flex;
+      margin-top: 0.7rem;
+      a {
+        font-size: large;
+        color: black;
+        border: 1px solid black;
+        background-color: #e4e4e4;
+        white-space: nowrap;
+        padding: 1rem;
+        border-radius: 2rem;
+        margin: 0px 1.2rem;
+        &:hover {
+          color: #ffffff;
+          background-color: #016bf7;
+        }
+      }
+      
+    }
+  }
+  .right-menu {
+    width: 6.4rem;
+    height: auto;
+    float: right;
+    padding: 1.8rem;
+    position: relative;
+    img {
+      width: 3.8rem;
+      height: 3.8rem;
+      border: solid black 2px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    &:hover .drop-menu {
+      visibility: visible;
+    }
+    .drop-menu {
+      width: 10.8rem;
+      height: auto;
+      background-color: #016bf7;
+      padding: 0.8rem 2px;
+      border: 1px solid #ddd;
+      box-shadow: 0px 4px 6px rgba(14, 14, 14, 0.1);
+      border-radius: 5px;
+      position: absolute;
+      right: 0;
+      visibility: hidden;
+      z-index: 10;
+      a {
+        font-size: 1.2rem;
+        color: white;
+        background-color: #2de52d99;
+        margin: 0.8rem;
+        display: block;
+        padding: 0.8rem;
+        border-radius: 0.8rem;
+      }
+      a:hover {
+        color: black;
+        background-color: blanchedalmond;
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+.container {
+  width: 100%;
+  background-color: white;
+  height: auto;
+  text-align: center;
+  h2 {
+    color: red;
+    font-size: 50px;
+  }
+  .calender {
+    width: 90%;
+    height: auto;
+    background-color: white;
+    border: 1px solid black;
+    margin-left: 5%;
+    margin-bottom: 2rem;
+    .head {
+        .next, .pre{
+            float: left;
+            margin-left: 10px;
+           cursor: pointer;
+        }
+        span{
+            color: white;
+            font-size: 20px;
+            float: none;
+        }
+      width: 100%;
+      height: auto;
+      background-color: #373839;
+    }
+    table {
+      width: 100%;
+      height: auto;
+      border-collapse: collapse;
+      .time1, .time2, .hour {
+        background-color: #E5FCFF;
+        border: 1px solid black;
+        padding: 3px;
+      }
+      .date{
+        background-color: #F2DFDF;
+        border: 1px solid black;
+        width: 13.5%;
+        height: auto;
+        padding: 0;
+        .see{
+          cursor: pointer;
+          background-color: #2fc9fd;
+          border: 1px solid #2fc9fd;
+          img{
+            height: 30px; 
+          }
+         
+        }
+      }
+    }
+  }
+}

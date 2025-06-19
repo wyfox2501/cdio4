@@ -1,0 +1,84 @@
+.add{
+    position: relative;
+    width: 100%;
+    height: auto;
+    border: 1px solid #cce5ff;
+    p{
+        width:30rem; 
+        height:auto;
+        border-Radius:10px;
+        position: absolute;
+        top:-8px;
+        right: 1px;
+        padding: 2px;
+        margin-right: 10px;
+    }
+    form {
+        width: 70%;
+        height: auto;
+        background-color: antiquewhite;
+        margin-left: 15%;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        margin-top: 4rem;
+        h2{
+          font-size: 2rem;
+          padding: 1rem;
+        }
+        .insert {
+          width: 70%;
+          height: auto;
+          margin-left: 15%;
+        }
+        span {
+          font-size: 20px;
+        }
+        input {
+            width: 11rem;
+          border-radius: 10px;
+          border: 1px solid #ccc;
+          text-align: center;
+        }
+        #input3{
+          margin-right: 2.2rem;
+        }
+        #input33{
+          margin-right: 2.2rem;
+          background-color: #ccc;
+        }
+        .date {
+          display: flex;
+          justify-content: space-between;
+        }
+        .hourStart {
+
+          display: flex;
+          justify-content: space-between;
+        }
+        .hourEnd {
+
+          display: flex;
+          justify-content: space-between;
+        }
+        .doctor {
+
+          display: flex;
+          justify-content: space-between;
+        }
+        button{
+          width: 10rem;
+          font-size: 20px;
+          padding: 15px;
+          border-radius: 10px;
+          border: 1px solid #ccc;
+          text-align: center;
+          cursor: pointer;
+          margin: 2rem;
+          &:hover{
+              color: #ffffff;
+              background-color: #016bf7;
+          }
+        }
+      }
+ 
+}
