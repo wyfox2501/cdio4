@@ -5,7 +5,7 @@ import Cat from "../../images/cat.png";
 import Healthycare from "../../images/healthycare.jpg";
 
 import { Link } from "react-router-dom";
-import { GetRole } from "../../services/jwt-services/JWTService";
+// import { GetRole } from "../../services/jwt-services/JWTService";
 import { useNavigate } from "react-router-dom";
 
 Header.propTypes = {

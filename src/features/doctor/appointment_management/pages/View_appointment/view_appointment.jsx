@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Calendar from "../../components/View_calendar_List/appointment";
-import Header from "../../../../component/header/index";
-import Sidebar from "../../dataSidebar";
+// import Header from "../../../../component/header/index";
+// import Sidebar from "../../dataSidebar";
 View_calendar.propTypes = {};
 
 function View_calendar(props) {

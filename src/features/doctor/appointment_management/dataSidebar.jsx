@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Demo from "./components/sidebar_List/sidebar";
-import Heading from "../../component/header/index";
+import Heading from "../../../components/header/index";
 import { Outlet } from "react-router-dom";
 import "./styleIndex.scss";
 import Footing from '../../../components/footer/Footer.jsx'
