@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import "./styleSide.scss";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import He from "../../../../../components/header/index";
+// import He from "../../../../../components/header/index";
 Demo.propTypes = {
     managerList: PropTypes.array,
 };
@@ -16,14 +16,13 @@ function Demo({managerList, viewList}) {
   const [bgColor, setBgColor] = useState("#ffffff");
   const [isOn, setIsOn] = useState("#ffffff");
   const [activeLink, setActiveLink] = useState(null);
-const id=1;
+  const id = 1;
   //lên xún dropdown và đổi màu
   const toggleDropdown = (id) => {
     if (id===1){
         setIsOpen(!isOpen);
         setBgColor(isOpen ? "#ffffff" : "#DDF1F9");
     }
-  
   };
   //đổi màu trong dropdowm
   const toggleColor = () => {
@@ -56,7 +55,6 @@ const id=1;
         {isOpen && data.id===1 && (
             <div  className="calendar">
             {viewList.map(dataview=>(
-                
             <NavLink
             key={dataview.id_view}
               to={dataview.path}

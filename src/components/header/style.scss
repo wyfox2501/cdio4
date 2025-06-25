@@ -1,108 +1,104 @@
 .menu {
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: space-between;
-  background-color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 1rem;
-  margin-bottom: 2rem;
-  font-size: inherit;
-
-  .left-menu {
-    width: 70%;
-    height: auto;
     display: flex;
-    justify-content: left;
-    margin: 1rem;
-    .health {
-      text-decoration: none;
-      color: black;
-      width: 10rem;
-      height: 3rem;
-      display: flex;
-      img {
-        width: auto;
-        height: 2.8rem;
-        padding-top: 1rem;
-        border-radius: 50%;
-        border: none;
-      }
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 0.8rem 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    font-size: 1rem;
 
-      &:hover{
-        cursor: pointer;
-        transform: scale(1.05);
-      }
+    .left-menu {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
 
-      h4 {
-        font-size: 1.2rem;
-        font-weight: normal;
-        margin-left: 0.6rem;
-      }
-    }
-    .function {
-      width: 60%;
-      height: 4rem;
-      display: flex;
-      margin-top: 0.7rem;
-      a {
-        font-size: large;
-        color: black;
-        border: 1px solid black;
-        background-color: #e4e4e4;
-        white-space: nowrap;
-        padding: 1rem;
-        border-radius: 2rem;
-        margin: 0px 1.2rem;
-        &:hover {
-          color: #ffffff;
-          background-color: #016bf7;
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: black;
+
+            img {
+                height: 40px;
+                width: 40px;
+                border-radius: 50%;
+                margin-right: 0.6rem;
+            }
+
+            h4 {
+                font-size: 1.4rem;
+                font-weight: 600;
+            }
+
+            &:hover {
+                transform: scale(1.05);
+                transition: 0.2s ease;
+            }
         }
-      }
-      
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+
+            a {
+                padding: 0.6rem 1.2rem;
+                border-radius: 2rem;
+                background-color: #f2f2f2;
+                color: black;
+                text-decoration: none;
+                font-weight: 500;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background-color: #016bf7;
+                    color: white;
+                }
+            }
+        }
     }
-  }
-  .right-menu {
-    width: 6.4rem;
-    height: auto;
-    float: right;
-    padding: 1.8rem;
-    position: relative;
-    img {
-      width: 3.8rem;
-      height: 3.8rem;
-      border: solid black 2px;
-      border-radius: 50%;
-      cursor: pointer;
+
+    .right-menu {
+        position: relative;
+
+        img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid black;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: #016bf7;
+            border-radius: 0.8rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            display: none;
+            flex-direction: column;
+            z-index: 99;
+
+            a {
+                color: white;
+                text-decoration: none;
+                padding: 0.8rem 1rem;
+                font-size: 1rem;
+                border-radius: 0.6rem;
+
+                &:hover {
+                    background-color: #f0f0f0;
+                    color: #000;
+                }
+            }
+        }
+
+        &:hover .dropdown {
+            display: flex;
+        }
     }
-    &:hover .drop-menu {
-      visibility: visible;
-    }
-    .drop-menu {
-      width: 10.8rem;
-      height: auto;
-      background-color: #016bf7;
-      padding: 0.8rem 2px;
-      border: 1px solid #ddd;
-      box-shadow: 0px 4px 6px rgba(14, 14, 14, 0.1);
-      border-radius: 5px;
-      position: absolute;
-      right: 0;
-      visibility: hidden;
-      z-index: 10;
-      a {
-        font-size: 1.2rem;
-        color: white;
-        background-color: #2de52d99;
-        margin: 0.8rem;
-        display: block;
-        padding: 0.8rem;
-        border-radius: 0.8rem;
-      }
-      a:hover {
-        color: black;
-        background-color: blanchedalmond;
-      }
-    }
-  }
 }
