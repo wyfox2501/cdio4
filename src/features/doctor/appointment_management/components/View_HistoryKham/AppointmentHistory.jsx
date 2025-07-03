@@ -52,12 +52,12 @@ function AppointmentHistory({ data = testData }) {
         <div className="history-container">
             <h2>Lịch Sử Khám Bệnh</h2>
             <div className="filters">
-                <input
+                {/* <input
                     type="text"
                     placeholder="Tìm theo tên bác sĩ..."
                     value={filterDoctor}
                     onChange={(e) => setFilterDoctor(e.target.value)}
-                />
+                /> */}
                 <input
                     type="date"
                     value={filterDate}

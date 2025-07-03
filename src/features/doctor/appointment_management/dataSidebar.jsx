@@ -18,16 +18,16 @@ function DataSidebar(props) {
             title: "Thêm Lịch Làm Việc",
             path: "/quan-li-lich/themlich",
         },
-        {
-            id: 3,
-            title: "Hủy Lịch Khám",
-            path: "/quan-li-lich/huy-lich",
-        },
-        {
-            id: 4,
-            title: "Xóa Lịch Làm Việc",
-            path: "/quan-li-lich/xoa-lich",
-        },
+        // {
+        //     id: 3,
+        //     title: "Hủy Lịch Khám",
+        //     path: "/quan-li-lich/huy-lich",
+        // },
+        // {
+        //     id: 4,
+        //     title: "Xóa Lịch Làm Việc",
+        //     path: "/quan-li-lich/xoa-lich",
+        // },
         {
             id: 5,
             title: "Xem Lịch Sử Lịch Khám",
