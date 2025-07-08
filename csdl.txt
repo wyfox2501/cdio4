@@ -1,0 +1,1 @@
+chỉnh sửa: thêm học vấn doctor, địa chỉ user, tuổi đưa patient qua user, triệu chứng đặt lịch.
