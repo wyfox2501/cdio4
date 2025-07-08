@@ -1,0 +1,76 @@
+// Giao diện chính
+.container {
+    width: 100%;
+    background-color: white;
+    height: auto;
+    text-align: center;
+
+    h2 {
+        color: red;
+        font-size: 50px;
+    }
+
+    .calender {
+        width: 90%;
+        background-color: white;
+        border: 1px solid black;
+        margin: 0 auto 2rem;
+
+        .head {
+            background-color: #373839;
+            width: 100%;
+            height: auto;
+
+            .next,
+            .pre {
+                float: left;
+                margin-left: 10px;
+                cursor: pointer;
+            }
+
+            span {
+                color: white;
+                font-size: 20px;
+                float: none;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            .time1,
+            .time2,
+            .hour {
+                background-color: #e5fcff;
+                border: 1px solid black;
+                padding: 3px;
+            }
+
+            .date {
+                background-color: #f2dfdf;
+                border: 1px solid black;
+                width: 13.5%;
+                padding: 0;
+
+                .see {
+                    cursor: pointer;
+                    background-color: #2fc9fd;
+                    border: 1px solid #2fc9fd;
+                    padding: 4px;
+                    margin: 4px 0;
+                    border-radius: 6px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    img {
+                        height: 30px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
