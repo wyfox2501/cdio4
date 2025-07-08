@@ -1,0 +1,41 @@
+.container-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+
+
+  .heading{
+    width: 100%;
+  }
+
+  .body {
+    display: flex;
+    // border: 1px solid rgb(163, 163, 163);
+    border-radius: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    background-color: rgb(227, 227, 227);
+    gap: .5rem;
+    .side {
+      width: 20%;
+      background-color: white;
+      border-radius: 1rem 0rem 0rem 1rem;
+    }
+
+
+    .doctor-body{
+
+      width: 80%;
+      background-color: white !important;
+      border-radius: 0rem 1rem 1rem 0rem;
+    }
+  }
+  // .foot{
+  //   width: 100%;
+  //   height: auto;
+  // }
+}

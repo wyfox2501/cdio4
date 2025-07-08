@@ -1,0 +1,121 @@
+.tong {
+    display: flex;
+    width: 100%;
+    min-height: 100%;
+    background-color: #f4f4f4;
+}
+
+.benphai {
+    width: 60%;
+    background-color: #d9e3f0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+.benphai h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.benphai ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.benphai li {
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+li {
+    border-bottom: 2px solid #ff0000;
+    padding-bottom: 5px; /* Tạo khoảng cách giữa chữ và gạch */
+    margin-bottom: 10px; /* Tạo khoảng cách giữa các mục */
+}
+
+
+.bentrai {
+    width: 40%;
+    background-color: #e8e8e8;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.bentrai input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgb(166, 234, 234);
+}
+
+.bentrai button {
+    padding: 10px 20px;
+    background-color: #00ff1a;
+    color: rgb(8, 8, 8);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bentrai button:hover {
+    background-color: #7cbcff;
+}
+.bentren {
+    display: flex;
+    justify-content: center;
+    gap: 70px; /* Khoảng cách giữa các h3 */    
+    padding: 10px;
+    margin-bottom: 80px;
+}
+
+.chiso{
+    display: flex;
+    justify-content: center;
+    gap: 70px; /* Khoảng cách giữa các h3 */    
+    padding: 10px;
+    margin-bottom: 80px;
+
+}
+.gioitinh{
+    display: flex;
+    margin-bottom: 40px;
+}
+.thongtin {
+    display: flex;
+    align-items: center; /* Căn nội dung theo chiều dọc */
+    gap: 5px; /* Khoảng cách giữa .benchu và .bennhap */
+    padding: 10px;
+}
+
+.benchu p{
+    font-size: 18px;
+    padding: 8px ;
+    text-align: left;
+    border-radius: 10px red;
+    
+}
+
+
+.benchu .p1{
+      
+    white-space: nowrap;
+}
+.benchu .p2{
+      
+    white-space: nowrap;
+}
+
+.bennhap {
+    flex: 1; /* Tự động mở rộng phần nhập */
+}
+
+
+
