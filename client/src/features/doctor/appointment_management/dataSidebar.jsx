@@ -38,11 +38,11 @@ function DataSidebar(props) {
             title: "Chốt Lịch Khám",
             path: "/quan-li-lich/chotLich",
         },
-        {
-            id: 7,
-            title: "Nộp Tiền Cho Bệnh Viện",
-            path: "/quan-li-lich/noptien",
-        },
+        // {
+        //     id: 7,
+        //     title: "Nộp Tiền Cho Bệnh Viện",
+        //     path: "/quan-li-lich/noptien",
+        // },
     ];
     const viewList = [
         {

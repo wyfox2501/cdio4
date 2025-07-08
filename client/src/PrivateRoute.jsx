@@ -13,7 +13,7 @@ const PrivateRoute = ({ allowedRoles }) => {
       .then(res => {
         // Nếu lấy thông tin thành công, lưu user vào state
         // console.log("ROLE:", res.data); 
-        setUser(res.data);
+        setUser(res.data.user);
       })
       .catch(() => {
         // Nếu không đăng nhập hoặc có lỗi, đặt user = null
@@ -26,18 +26,20 @@ const PrivateRoute = ({ allowedRoles }) => {
   }, []);
 
   // Nếu đang loading thì hiện chữ "Loading..."
-  if (loading) return <div>Đang tải...</div>;
+  if (loading) return <div>Loading...</div>;
 
   // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
   if (!user) {
     return <Navigate to="/auth/login" replace />;
   }
 
-if (!allowedRoles.includes(user.role==="admin" || user.role === "doctor" || user.role === "patient")) {
-  return <Navigate to="/unauthorized" replace /> ;
+// if (!allowedRoles.includes(user.role==="admin" || user.role === "doctor" || user.role === "patient")) {
+//   return <Navigate to="/unauthorized" replace /> ;
 
-}
-
+// }
+ if (!allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
   // Nếu hợp lệ, hiển thị nội dung bên trong route (trang được phép truy cập)
   return <Outlet />;
 };

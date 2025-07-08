@@ -115,7 +115,7 @@ router.put('/refuse/:id',upload.none(), async function(req, res, next) {
 });
 // Thêm cron job để cập nhật trạng thái hoạt động
 // tự động cập nhập lúc 00h01p sáng mỗi ngày
-const cron = require('node-cron');
+// const cron = require('node-cron');
 cron.schedule('1 0 * * *', async () => {
   try {
     await healthy.query(`

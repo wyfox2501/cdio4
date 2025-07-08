@@ -77,7 +77,8 @@ router.post('/login',upload.none(), async function(req, res, next) {
       return res.status(403).json({ message: "Account is waiting for approval" });
     }
     const user = result.rows[0];
-    req.session.user = { id: user.id, name: user.username, role: user.role }; // Lưu thông tin người dùng vào session
+    req.session.user = { id: user.user_id, name: user.username, role: user.role };
+    // console.log("Session set on login:", req.session.user);
     res.status(200).json({ message: "Login successful", user: req.session.user });
   } catch (error) {
     console.error("Error in POST /users/login:", error);
@@ -104,6 +105,9 @@ router.post('/logout', function(req, res, next) {
 // lấy thông tin người dùng hiện tại
 router.get('/me', async function(req, res, next) {
   try {
+    if (!req.session.user || !req.session.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const userId = req.session.user.id; // Lấy userId từ session
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -125,7 +129,7 @@ router.get('/me', async function(req, res, next) {
         user.patientInfo = patientResult.rows[0];
       }
     }
-    res.status(200).json(user);
+    res.status(200).json({user});
   } catch (error) {
     console.error("Error in GET /users/me:", error);
     res.status(500).json({ message: "Internal server error" });
