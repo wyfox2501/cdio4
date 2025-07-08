@@ -49,3 +49,26 @@ CREATE TABLE Appointments (
     Time TIME,
     Status VARCHAR(50)
 );
+// một số thay đổi về bản
+ALTER TABLE doctor
+ADD COLUMN education TEXT;
+ALTER TABLE "users"
+ADD COLUMN address TEXT;
+ALTER TABLE appointments
+ADD COLUMN symptoms TEXT;
+ALTER TABLE "users"
+ADD COLUMN birthdate DATE;
+ALTER TABLE "users"
+ADD COLUMN genre BOOLEAN;
+ALTER TABLE "users"
+ALTER COLUMN active TYPE TEXT
+USING 
+  CASE 
+    WHEN active IS TRUE THEN 'true'
+    WHEN active IS FALSE THEN 'false'
+    ELSE 'wait'
+  END;
+ALTER TABLE patient
+DROP COLUMN IF EXISTS genre;
+ALTER TABLE patient
+DROP COLUMN IF EXISTS year_old;

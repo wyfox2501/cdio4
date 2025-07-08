@@ -9,7 +9,7 @@ const pgSession = require('connect-pg-simple')(session);
 const Healthy= require('./model/Heathy');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+var doctorRouter = require('./routes/doctor');
 var app = express();
 
 app.use(cors({
@@ -51,6 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/doctor', doctorRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
