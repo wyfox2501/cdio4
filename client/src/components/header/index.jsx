@@ -19,27 +19,27 @@ const doctorDataHeader = [
   {
     id: 1,
     title: "Tổng Quan",
-    url: "/",
+    url: "/doctor",
   },
   {
     id: 2,
     title: "Quản Lý Lịch",
-    url: "/quan-li-lich",
+    url: "/doctor/quan-li-lich",
   },
   {
     id: 3,
     title: "Nộp tiền",
-    url: "/nop-tien",
+    url: "/doctor/nop-tien",
   },
   {
     id: 4,
     title: "tư vấn",
-    url: "/tu-van",
+    url: "/doctor/tu-van",
   },
   {
     id: 5,
     title: "quản lý tài khoản",
-    url: "/quan-li-tai-khoan",
+    url: "/doctor/quan-li-tai-khoan",
   },
 ];
 
@@ -75,17 +75,17 @@ const adminDataHeader = [
   {
     id: 1,
     title: "Tổng Quan",
-    url: "/",
+    url: "/admin",
   },
   {
     id: 2,
     title: "duyệt lịch khám",
-    url: "/duyet-lich-kham",
+    url: "/admin/duyet-lich-kham",
   },
   {
     id: 3,
     title: "quản lý tài khoản",
-    url: "/chon-bac-si",
+    url: "/admin/account_manager",
   },
   {
     id: 4,
@@ -110,7 +110,7 @@ function Header() {
       if (res.status === 200) {
         setUser(result.user); // cập nhật state user
       } else {
-        navigate("/login");
+        navigate("/auth/login");
         // alert(result.message);
       }
     };
@@ -120,7 +120,7 @@ function Header() {
     try {
       const res = await axios.post("http://localhost:5000/api/users/logout", {}, { withCredentials: true });
       if (res.status === 200) {
-        navigate("/login");
+        navigate("/auth/login");
       } else {
         alert("Đăng xuất không thành công");
       }

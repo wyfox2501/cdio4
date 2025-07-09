@@ -1,0 +1,128 @@
+// Biến màu
+$primary-color: #007bff;
+$active-color: #4CAF50;
+$background-color: #f4f7f9;
+$sidebar-bg: #e3f2fd;
+$card-bg: #ffffff;
+$value-bg: #e9ecef;
+$border-color: #dee2e6;
+$text-color: #333;
+$title-color: #0056b3;
+
+// Kế thừa style chung để đồng bộ
+@import './DoctorDetail.scss'; 
+
+.confirmation-container {
+  display: flex;
+  background-color: $background-color;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+
+  .sidebar {
+    background-color: $sidebar-bg;
+    .nav-button {
+      &.active, &:hover {
+        background-color: $active-color;
+        border-color: $active-color;
+        color: white;
+      }
+    }
+  }
+
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding: 2rem;
+  }
+}
+
+.confirmation-card {
+  width: 100%;
+  max-width: 950px;
+  background-color: $card-bg;
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: $primary-color;
+    span {
+      margin-right: 0.75rem;
+    }
+  }
+}
+
+.info-section {
+  margin-bottom: 2.5rem;
+  
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: $title-color;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0e0e0;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem 2rem;
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    
+    .value {
+      background-color: $value-bg;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: $text-color;
+    }
+  }
+}
+
+.card-footer {
+  margin-top: 2.5rem;
+  text-align: center;
+
+  .confirm-button {
+    background-color: $primary-color;
+    color: white;
+    padding: 0.8rem 3rem;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+}

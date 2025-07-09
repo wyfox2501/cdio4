@@ -1,0 +1,205 @@
+// --- BIẾN MÀU ĐÃ ĐƯỢC CẬP NHẬT ---
+$primary-color: #007bff;      // Màu xanh dương cho nút và tiêu đề
+$secondary-color: #4CAF50;    // Màu xanh lá cho nút active/hover
+$background-color: #f4f7f9;
+$border-color: #dee2e6;
+$text-color: #333;
+$sidebar-bg: #e3f2fd;
+$value-bg: #e9ecef;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: $background-color;
+  margin: 0;
+}
+
+.doctor-detail-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+// --- Sidebar bên trái ---
+.sidebar {
+  width: 280px;
+  background-color: $sidebar-bg;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid $border-color;
+
+  .logo-container {
+    width: 120px;
+    height: 120px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    img {
+      max-width: 70%;
+    }
+  }
+
+  .navigation {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .nav-button {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: $primary-color;
+      background-color: transparent;
+      border: 2px solid $primary-color;
+
+      &.active, &:hover {
+        background-color: $secondary-color;
+        border-color: $secondary-color;
+        color: white;
+      }
+    }
+  }
+}
+
+// --- Nội dung chính bên phải ---
+.main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  position: relative;
+
+  .info-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  // --- SỬA LỖI CĂN CHỈNH VÀ MÀU SẮC Ở ĐÂY ---
+  .info-header {
+    display: flex;
+    //justify-content: center; // Căn giữa cả nhóm avatar và chữ
+    align-items: center;    // Căn avatar và chữ thẳng hàng với nhau
+    gap: 1.5rem;              // Tạo khoảng cách giữa avatar và chữ
+    margin-bottom: 2.5rem;
+
+    .doctor-avatar {
+      width: 80px;            // Giảm kích thước avatar một chút cho cân đối
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid $primary-color;
+      // Không cần margin-bottom ở đây nữa
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: $primary-color; // Đổi màu chữ thành xanh dương
+      font-weight: 600;
+      margin: 0;              // Xóa margin mặc định của h2 để căn chỉnh chính xác
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+
+    .info-item {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      align-items: center;
+
+      .label {
+        font-weight: 600;
+        color: $text-color;
+        font-size: 1rem;
+      }
+
+      .value {
+        background-color: $value-bg;
+        padding: 0.8rem 1rem;
+        border-radius: 30px;
+        font-size: 1rem;
+        color: #555;
+      }
+
+      .gender-options {
+  display: flex;
+  align-items: center;
+  gap: 2rem; // Tăng khoảng cách giữa hai lựa chọn Nam/Nữ
+
+  .gender-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; // Khoảng cách giữa ô check và chữ
+  }
+
+  .check-mark {
+    width: 24px;
+    height: 24px;
+    border: 2px solid $primary-color;
+    color: transparent; // Ẩn chữ V ban đầu
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    
+    // Khi có class 'checked'
+    &.checked {
+      background-color: $primary-color;
+      color: white; // Hiện chữ V
+    }
+  }
+
+        .check-mark {
+          width: 24px;
+          height: 24px;
+          border: 2px solid $primary-color;
+          color: transparent;
+          border-radius: 4px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: bold;
+          
+          &.checked {
+            background-color: $primary-color;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}
+
+// --- Responsive ---
+@media (max-width: 1200px) {
+  .doctor-detail-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 1rem;
+    .logo-container {
+      display: none;
+    }
+    .navigation {
+      flex-direction: row;
+    }
+  }
+}

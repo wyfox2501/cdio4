@@ -15,15 +15,15 @@ router.get('/', function(req, res, next) {
 });
 router.post('/patient', upload.single('avata'), async function(req, res, next) {
   try {
-    const { name, email, password, phone, cccd } = req.body;
+    const { name, email, password, phone, cccd, birthday, sex, address } = req.body;
     const avata = req.file?.filename; // Lấy tên file avatar
     const check = await healthy.query("SELECT * FROM users WHERE email = $1 or cccd=$2", [email, cccd]);
     if (check.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
    const result = await healthy.query(
-      "INSERT INTO users (username, email, password, phone, cccd, avata,role, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
-      [name, email, password, phone, cccd, avata, 'patient', "true"]
+      "INSERT INTO users (username, email, password, phone, cccd, avata,role, active, birthday, sex, address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+      [name, email, password, phone, cccd, avata, 'patient', "true", birthday, sex, address]
     );
      const userId = result.rows[0].user_id;
     await healthy.query(
@@ -41,7 +41,7 @@ router.post('/doctor', upload.fields([
   { name: 'image_Certification', maxCount: 1 } // Chứng chỉ bác sĩ
 ]),async function(req, res, next) {
   try {
-    const { name, email, password, phone, cccd, specification, experience } = req.body;
+    const { name, email, password, phone, cccd, birthday, sex, address, specification, experience } = req.body;
     const avata = req.files?.avata?.[0]?.filename; // Lấy tên file avatar
     const image_Certification = req.files?.image_Certification?.[0]?.filename; // Lấy tên file chứng chỉ
     const check = await healthy.query("SELECT * FROM users WHERE email = $1 or cccd=$2", [email, cccd]);
@@ -49,8 +49,8 @@ router.post('/doctor', upload.fields([
       return res.status(400).json({ message: "User already exists" });
     }
     const result = await healthy.query(
-      "INSERT INTO users (username, email, password, phone, cccd, avata,role, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
-      [name, email, password, phone, cccd, avata, 'doctor', "wait"]
+      "INSERT INTO users (username, email, password, phone, cccd,birthday, sex, address, avata,role, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+      [name, email, password, phone, cccd, birthday, sex, address, avata, 'doctor', "wait"]
     );
     const userId = result.rows[0].user_id;
    await healthy.query(

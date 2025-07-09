@@ -1,0 +1,146 @@
+// src/features/customer/make_an_appointment/Schedule.scss
+
+// Biến màu
+$primary-color: #007bff;
+$active-color: #4CAF50; // Màu xanh lá cho nút active
+$background-color: #f4f7f9;
+$sidebar-bg: #e3f2fd;
+$card-bg: #ffffff;
+$border-color: #dee2e6;
+$status-booked-color: #dc3545; // Màu đỏ cho "Đã đặt"
+$status-available-color: #28a745; // Màu xanh cho "Còn trống"
+$selected-row-bg: #e9f5ff;
+
+// Kế thừa style chung để đồng bộ
+@import './DoctorDetail.scss'; 
+
+.schedule-container {
+  display: flex;
+  background-color: $background-color;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+
+  .sidebar {
+    background-color: $sidebar-bg;
+    .nav-button {
+      &.active, &:hover {
+        background-color: $active-color;
+        border-color: $active-color;
+        color: white;
+      }
+    }
+  }
+
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding: 2rem;
+  }
+}
+
+.schedule-card {
+  width: 100%;
+  max-width: 1100px;
+  background-color: $card-bg;
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+
+  label {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .date-display {
+    background-color: #f0f2f5;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid $border-color;
+  }
+}
+
+.schedule-table {
+  width: 100%;
+  
+  .table-header, .table-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1.5fr 2.5fr 1.5fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid $border-color;
+  }
+
+  .table-header {
+    font-weight: bold;
+    color: #555;
+    background-color: #f8f9fa;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+
+  .table-row {
+    transition: background-color 0.2s ease;
+    &.selected {
+      background-color: $selected-row-bg;
+      border-left: 4px solid $primary-color;
+    }
+  }
+
+  .custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $border-color;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: $primary-color;
+  }
+  
+  .table-row.selected .custom-checkbox {
+    border-color: $primary-color;
+  }
+
+  .col-status {
+    font-weight: 500;
+    &.status-available {
+      color: $status-available-color;
+    }
+    &.status-booked {
+      color: $status-booked-color;
+    }
+  }
+}
+
+.footer-action {
+  margin-top: 2rem;
+  text-align: center;
+
+  .confirm-button {
+    background-color: $primary-color;
+    color: white;
+    padding: 0.8rem 3rem;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+}

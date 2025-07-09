@@ -19,7 +19,7 @@ function Login(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const dataform= new FormData();
+      const dataform = new FormData();
       dataform.append("email", data.email);
       dataform.append("password", data.password);
       const response = await fetch("http://localhost:5000/api/users/login", {
@@ -27,18 +27,23 @@ function Login(props) {
         body: dataform,
         credentials: "include", // Để gửi cookie session
       });
-        const result = await response.json();
-        if (response.status === 401) {
-          alert(result.message  || "Invalid email or password");
-          return;
-        }else if (response.status === 403){
-          alert("Account is not active", result.message);
-          return;
-        }
-         else if (response.status=== 200) {
-          alert("Login successful", result.message);
-          navigate("/"); // Chuyển hướng về trang chính sau khi đăng nhập thành công
+      const result = await response.json();
+      if (response.status === 401) {
+        alert(result.message || "Invalid email or password");
+        return;
+      } else if (response.status === 403) {
+        alert("Account is not active", result.message);
+        return;
+      } else if (response.status === 200) {
+        alert("Login successful", result.message);
+        if (result.user?.role === "doctor") {
+          navigate("/doctor"); // hoặc "/quan-li-lich" nếu bạn đặt route là vậy
+        } else if (result.user?.role === "patient") {
+          navigate("/"); // hoặc "/patient" nếu bạn có layout riêng
         } else {
+          navigate("/admin"); // fallback
+        }
+      } else {
         alert("Server error", result.message);
       }
     } catch (error) {

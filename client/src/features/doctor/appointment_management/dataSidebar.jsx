@@ -16,7 +16,7 @@ function DataSidebar(props) {
         {
             id: 2,
             title: "Thêm Lịch Làm Việc",
-            path: "/quan-li-lich/themlich",
+            path: "/doctor/quan-li-lich/themlich",
         },
         // {
         //     id: 3,
@@ -31,12 +31,12 @@ function DataSidebar(props) {
         {
             id: 5,
             title: "Xem Lịch Sử Lịch Khám",
-            path: "/quan-li-lich/xemLichSuLichKham",
+            path: "/doctor/quan-li-lich/xemLichSuLichKham",
         },
         {
             id: 6,
             title: "Chốt Lịch Khám",
-            path: "/quan-li-lich/chotLich",
+            path: "/doctor/quan-li-lich/chotLich",
         },
         // {
         //     id: 7,
@@ -49,20 +49,17 @@ function DataSidebar(props) {
             id_view: "kham",
             title: "Lịch Khám",
             id: 1,
-            path: "/quan-li-lich/LichKham",
+            path: "/doctor/quan-li-lich/LichKham",
         },
         {
             id_view: "work",
             title: "Lịch Làm Việc",
             id: 1,
-            path: "/quan-li-lich/LichLamViec",
+            path: "/doctor/quan-li-lich/LichLamViec",
         },
     ];
     return (
         <div className="container-main">
-            <div className="heading">
-                <Heading />
-            </div>
             <div className="body">
                 <div className="side">
                     <Demo managerList={managerList} viewList={viewList} />

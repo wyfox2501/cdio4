@@ -1,17 +1,32 @@
 import { Routes, Route } from "react-router-dom";
+// doctor
+import Layout_doctor from "./features/doctor/Layout_doctor.jsx";
 import Sidebar from "./features/doctor/appointment_management/dataSidebar";
 import Add_appointment from "./features/doctor/appointment_management/components/Add_calender/Add_calender.jsx";
-// import Cancle_appointment from './features/doctor/appointment_management/components/Cancel_appointment/Cancel_appointment.jsx';
-// import Delete_appointment from './features/doctor/appointment_management/components/Delete_appointment/Delete_appointment.jsx';
 import History_appointment from "./features/doctor/appointment_management/components/View_HistoryKham/AppointmentHistory.jsx";
 import Deal_appointment from "./features/doctor/appointment_management/components/ConfirmAppointment/ConfirmAppointment.jsx";
 import View_appointment from "./features/doctor/appointment_management/components/View_calendar_List/appointment.jsx";
 import View_work_calendar from "./features/doctor/appointment_management/components/View_calendar_List/work_schedule.jsx";
+import Home_appointment from "./features/doctor/appointment_management/pages/home/home_appointment_management.jsx";
+import DoctorPayment from "./features/doctor/payment/DoctorPayment/DoctorPayment.jsx";
+// patient
+import Layout_customer from "./features/customer/Layout_customer.jsx";
+import DoctorSelect from "./features/customer/make_an_appointment/DoctorSelection.jsx";
+import AppointmentLayout from "./features/customer/make_an_appointment/AppointmentLayout.jsx";
+import DoctorDetail from "./features/customer/make_an_appointment/DoctorDetail.jsx";
+import BookingInfo from "./features/customer/make_an_appointment/BookingInfo.jsx";
+import AppointmentConfirmation from "./features/customer/make_an_appointment/AppointmentConfirmation.jsx";
+import Schedule from "./features/customer/make_an_appointment/Schedule.jsx";
+import ProfileCustomer from "./features/customer/profileCustomer/profileCustomer.jsx";
+import Advise from "./features/customer/advise/adviseCustomer.jsx";
+//admin
+import Layout_admin from './features/admin/adminlayout.jsx';
+import Inadmin from './features/admin/inadmin/quanlyquyen.jsx';
+import UserAdmin from './features/admin/useradmin/quanlytaikhoan.jsx'
+// layout
 import Login from "./features/auth/login & register/Login";
 import Register from "./features/auth/login & register/Register";
 import Layout_Auth from "./features/auth/layout/AuthLayout";
-import Home_appointment from "./features/doctor/appointment_management/pages/home/home_appointment_management.jsx";
-import DoctorPayment from "./features/doctor/payment/DoctorPayment/DoctorPayment.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Unauthorized from "./components/unauthorized.jsx";
 function App() {
@@ -25,40 +40,42 @@ function App() {
           <Route path="register" element={<Register />} />
         </Route>
 
-        <Route path="/" element={<PrivateRoute allowedRoles={"doctor"} />}>
-          <Route index element={<Sidebar />} />
-          <Route path="/quan-li-lich" element={<Sidebar />}>
-            <Route index element={<Home_appointment />} />
-            <Route path="LichKham" element={<View_appointment />} />
-            <Route path="LichLamViec" element={<View_work_calendar />} />
-            <Route path="themlich" element={<Add_appointment />} />
-            <Route path="xemLichSuLichKham" element={<History_appointment />} />
-            <Route path="chotLich" element={<Deal_appointment />} />
-          </Route>
-          <Route path="/nop-tien" element={<Sidebar />}>
-            <Route index element={<DoctorPayment />} />
+        <Route path="/doctor" element={<PrivateRoute allowedRoles={"doctor"} />}>
+          <Route index element={<Layout_doctor />} />
+          <Route path="/doctor" element={<Layout_doctor />}>
+            <Route path="quan-li-lich" element={<Sidebar />}>
+              <Route index element={<Home_appointment />} />
+              <Route path="LichKham" element={<View_appointment />} />
+              <Route path="LichLamViec" element={<View_work_calendar />} />
+              <Route path="themlich" element={<Add_appointment />} />
+              <Route path="xemLichSuLichKham" element={<History_appointment />} />
+              <Route path="chotLich" element={<Deal_appointment />} />
+            </Route>
+            <Route path="nop-tien" element={<DoctorPayment />} />
           </Route>
         </Route>
-        {/* <Route path="/" element={<PrivateRoute allowedRoles={'admin'} />}>
-        <Route path ="/quan-li-lich" element={<Sidebar />}>
-          <Route index element={<Home_appointment />} />
-          <Route path="LichKham" element={<View_appointment />} />
-          <Route path="LichLamViec" element={<View_work_calendar />} />
-          <Route path="themlich" element={<Add_appointment />} />
-          <Route path="xem-lich-su" element={<History_appointment />} />
-          <Route path="chot-lich" element={<Deal_appointment />} />
+        <Route path="/admin" element={<PrivateRoute allowedRoles={'admin'} />}>
+          <Route index element={<Layout_admin/>}/>
+          <Route path="/admin" element={<Layout_admin />}>
+            <Route path="role-manager" element={<Inadmin />} />
+            <Route path="account_manager" element={<UserAdmin />} />
         </Route>
       </Route>
-      <Route path="/" element={<PrivateRoute allowedRoles={'patient'} />}>
-        <Route path ="/quan-li-lich" element={<Sidebar />}>
-          <Route index element={<Home_appointment />} />
-          <Route path="LichKham" element={<View_appointment />} />
-          <Route path="LichLamViec" element={<View_work_calendar />} />
-          <Route path="themlich" element={<Add_appointment />} />
-          <Route path="xem-lich-su" element={<History_appointment />} />
-          <Route path="chot-lich" element={<Deal_appointment />} />
-        </Route>
-      </Route> */}
+        <Route path="/" element={<PrivateRoute allowedRoles={"patient"}/>}> 
+              <Route index element={<Layout_customer />} />
+              <Route path="/" element={<Layout_customer />}>
+                <Route path="chon-bac-si" element={<DoctorSelect />} />
+                <Route path="datlich" element={<AppointmentLayout />}>
+                      <Route index element={<DoctorDetail />} />
+                      <Route path="chi-tiet-bac-si/:doctorId" element={<DoctorDetail />}/>
+                      <Route path="thong-tin-kham-benh/:doctorId" element={<BookingInfo />} />
+                      <Route path="kiemtra/:doctorId" element={<Schedule />} />
+                      <Route path="xac-nhan-dat-lich/:doctorId" element={<AppointmentConfirmation />} />
+                </Route>
+                <Route path="tu-van" element={<Advise />} />
+                <Route path="quan-li-tai-khoan" element={<ProfileCustomer />} />
+              </Route>
+          </Route>
       </Routes>
     </div>
   );

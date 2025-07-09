@@ -35,7 +35,7 @@ function Register(props) {
     password: "",
     phone: "",
     birthday: "",
-    genre: "",
+    sex: "",
     cccd: "",
     address: "",
     avata: null,
@@ -46,7 +46,7 @@ function Register(props) {
     password: "",
     phone: "",
     birthday: "",
-    genre: "",
+    sex: "",
     cccd: "",
     address: "",
     avata: null,
@@ -93,7 +93,7 @@ const handleChang = (event) => {
   const { name, value } = event.target;
 
   const finalValue =
-    name === "genre" ? value === "true" : value;
+    name === "sex" ? value === "true" : value;
 
   setDataPatient((prevData) => ({
     ...prevData,
@@ -117,7 +117,7 @@ const handleChang = (event) => {
       formData.append("phone", dataPatient.phone);
       formData.append("cccd", dataPatient.cccd);
       formData.append("birthday", dataPatient.birthday);
-      formData.append("genre", dataPatient.genre);
+      formData.append("sex", dataPatient.sex);
       formData.append("address", dataPatient.address);
       formData.append("avata", dataPatient.avata);
 
@@ -146,7 +146,7 @@ const handleChang = (event) => {
       formData.append("phone", dataDoctor.phone);
       formData.append("cccd", dataDoctor.cccd);
       formData.append("birthday", dataDoctor.birthday);
-      formData.append("genre", dataDoctor.genre);
+      formData.append("sex", dataDoctor.sex);
       formData.append("address", dataDoctor.address);
       formData.append("avata", dataDoctor.avata);
       formData.append("specification", dataDoctor.specification);
@@ -235,9 +235,9 @@ const handleChang = (event) => {
               />
             </p>
             <p>
-              <span>Genre:</span>
-              <select name="genre" required onChange={handleChang}>
-                <option value="">Select Genre</option>
+              <span>Sex:</span>
+              <select name="sex" required onChange={handleChang}>
+                <option value="">Select Sex</option>
                 <option value="true">Nam</option>
                 <option value="false">Nữ</option>
               </select>
@@ -343,9 +343,9 @@ const handleChang = (event) => {
               />
             </p>
             <p>
-              <span>Genre:</span>
-              <select name="genre" required onChange={handleChang}>
-                <option value="">Select Genre</option>
+              <span>Sex:</span>
+              <select name="sex" required onChange={handleChang}>
+                <option value="">Select Sex</option>
                 <option value="true">Nam</option>
                 <option value="false">Nữ</option>
               </select>
