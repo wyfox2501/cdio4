@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-// import "./style.scss";
-import "./styleCancel.scss"; // dùng lại style cũ
+import "./styleCancel.scss";
+import axios from "axios";
 
 const daysOfWeek = [
-    "Thứ Hai",
-    "Thứ Ba",
-    "Thứ Tư",
-    "Thứ Năm",
-    "Thứ Sáu",
-    "Thứ Bảy",
-    "Chủ Nhật",
+    "Chủ Nhật", // 0
+    "Thứ Hai", // 1
+    "Thứ Ba", // 2
+    "Thứ Tư", // 3
+    "Thứ Năm", // 4
+    "Thứ Sáu", // 5
+    "Thứ Bảy", // 6
 ];
+
 const hours = [
     "7H",
     "8H",
@@ -29,34 +30,89 @@ const hours = [
     "21H",
 ];
 
+axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.withCredentials = true;
+
 function ViewCalendarKham() {
     const [showCancelForm, setShowCancelForm] = useState(false);
     const [cancelData, setCancelData] = useState(null);
-    const [patients, setPatients] = useState([
-        {
-            id: "BN01",
-            name: "Trần Minh Tú",
-            date: "2025-03-03",
-            time: "14H",
-            sdt: "03312456789",
-            symptum: "Đau đầu",
-        },
-        {
-            id: "BN02",
-            name: "Trần Đại Huân",
-            date: "2025-03-05",
-            time: "8H",
-            sdt: "0354612148",
-            symptum: "Cảm cúm",
-        },
-    ]);
+    const [patients, setPatients] = useState([]);
+
+    // useEffect(() => {
+    //     const fetchAppointments = async () => {
+    //         try {
+    //             const response = await axios.get("/api/doctor/view_appointment", {
+    //                 withCredentials: true,
+    //             });
+    //             console.log("Dữ liệu từ backend:", response.data);
+    //             const data = response.data.map((item) => ({
+    //                 id: item.id,
+    //                 name: item.patient_name,
+    //                 date: item.appointment_date,
+    //                 time: item.appointment_time,
+    //                 sdt: item.patient_phone,
+    //                 symptum: item.symptoms,
+    //             }));
+    //             setPatients(data);
+    //         } catch (error) {
+    //             console.error("Error fetching appointments:", error);
+    //         }
+    //     };
+    //     fetchAppointments();
+    // }, []);
+
+    // useEffect(() => {
+    //     const data = [
+    //         {
+    //             id: 1,
+    //             name: "Nguyễn Văn A",
+    //             date: "2025-07-08", // Thứ Ba
+    //             time: "9H",
+    //             sdt: "0912345678",
+    //             symptum: "Sốt cao, mệt mỏi",
+    //         },
+    //         {
+    //             id: 2,
+    //             name: "Trần Thị B",
+    //             date: "2025-07-09", // Thứ Tư
+    //             time: "10H",
+    //             sdt: "0923456789",
+    //             symptum: "Ho kéo dài",
+    //         },
+    //         {
+    //             id: 3,
+    //             name: "Lê Văn C",
+    //             date: "2025-07-10", // Thứ Năm
+    //             time: "15H",
+    //             sdt: "0934567890",
+    //             symptum: "Đau đầu",
+    //         },
+    //         {
+    //             id: 4,
+    //             name: "Phạm Văn D",
+    //             date: "2025-07-11", // Thứ Sáu
+    //             time: "8H",
+    //             sdt: "0945678901",
+    //             symptum: "Mất ngủ",
+    //         },
+    //         {
+    //             id: 5,
+    //             name: "Đặng Thị E",
+    //             date: "2025-07-12", // Thứ Bảy
+    //             time: "14H",
+    //             sdt: "0956789012",
+    //             symptum: "Chóng mặt",
+    //         },
+    //     ];
+    //     setPatients(data);
+    // }, []);
 
     const getWeekday = (dateStr) => {
         const date = new Date(dateStr);
         return daysOfWeek[date.getDay()];
     };
 
-    const [startDay, setStartDay] = useState(new Date(2025, 2, 3));
+    const [startDay, setStartDay] = useState(new Date(2025, 6, 7)); // 7/7/2025
     const [endDay, setEndDay] = useState(new Date(startDay));
 
     useEffect(() => {
@@ -66,11 +122,15 @@ function ViewCalendarKham() {
     }, [startDay]);
 
     const nextDay = () => {
-        setStartDay((prev) => new Date(prev.setDate(prev.getDate() + 7)));
+        setStartDay(
+            (prev) => new Date(prev.getTime() + 7 * 24 * 60 * 60 * 1000)
+        );
     };
 
     const prevDay = () => {
-        setStartDay((prev) => new Date(prev.setDate(prev.getDate() - 7)));
+        setStartDay(
+            (prev) => new Date(prev.getTime() - 7 * 24 * 60 * 60 * 1000)
+        );
     };
 
     const handleShowCancel = (patient) => {
@@ -100,7 +160,7 @@ function ViewCalendarKham() {
 
     return (
         <div className="container">
-            <h2>Lịch Khám</h2>
+            <h2 style={{ color: "red", textAlign: "center" }}>Lịch Khám</h2>
             <div className="calender">
                 <div className="head">
                     <span className="next" onClick={prevDay}>
@@ -115,7 +175,7 @@ function ViewCalendarKham() {
                     </span>
                 </div>
                 <table>
-                    <thead>
+                    {/* <thead>
                         <tr>
                             <th className="time1">Giờ</th>
                             {daysOfWeek.map((day) => (
@@ -123,6 +183,36 @@ function ViewCalendarKham() {
                                     {day}
                                 </th>
                             ))}
+                        </tr>
+                    </thead> */}
+                    <thead>
+                        <tr>
+                            <th className="time1">Giờ</th>
+                            {Array.from({ length: 7 }).map((_, i) => {
+                                const currentDate = new Date(startDay);
+                                currentDate.setDate(startDay.getDate() + i);
+                                const weekday =
+                                    daysOfWeek[currentDate.getDay()];
+                                const formattedDate =
+                                    currentDate.toLocaleDateString("vi-VN", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                    });
+
+                                return (
+                                    <th key={i} className="time2">
+                                        <div>{weekday}</div>
+                                        <div
+                                            style={{
+                                                fontSize: "12px",
+                                                color: "#888",
+                                            }}
+                                        >
+                                            {formattedDate}
+                                        </div>
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody>
@@ -132,11 +222,15 @@ function ViewCalendarKham() {
                                 {daysOfWeek.map((day) => (
                                     <td key={day + hour} className="date">
                                         {patients
-                                            .filter(
-                                                (p) =>
-                                                    getWeekday(p.date) ===
-                                                        day && p.time === hour
-                                            )
+                                            .filter((p) => {
+                                                const weekday = getWeekday(
+                                                    p.date
+                                                );
+                                                return (
+                                                    weekday === day &&
+                                                    p.time === hour
+                                                );
+                                            })
                                             .map((p, index) => (
                                                 <div
                                                     key={index}
@@ -197,9 +291,24 @@ function CancelSchedule({ data, onClose, onSuccess }) {
         setMessage("Đã hủy lịch thành công!");
         setColor("green");
 
+        const cancelAppointment = async () => {
+            try {
+                await axios.put(
+                    `/doctor/cancel/${formData.id}`,
+                    { reason: formData.lydo },
+                    { withCredentials: true }
+                );
+                onSuccess(formData.id);
+            } catch (error) {
+                console.error("Error cancelling appointment:", error);
+                setMessage("Hủy lịch thất bại, thử lại!");
+                setColor("#f03242");
+            }
+        };
+
         setTimeout(() => {
-            onSuccess(formData.id);
-        }, 1000);
+            cancelAppointment();
+        }, 500);
     };
 
     return (

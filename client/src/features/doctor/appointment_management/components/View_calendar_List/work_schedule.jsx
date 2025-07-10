@@ -30,25 +30,25 @@ const hours = [
 ];
 
 function WorkSchedule() {
-    const initialSchedule = [
-        {
-            id: 1,
-            doctor: "Nguyễn Hoàng Huy",
-            date: "2025-03-09",
-            hour: ["8H", "10H"],
-        },
-        {
-            id: 2,
-            doctor: "Nguyễn Hoàng Huy",
-            date: "2025-03-05",
-            hour: ["10H"],
-        },
-        { id: 3, doctor: "Nguyễn Hoàng Huy", date: "2025-03-08", hour: ["7H"] },
-    ];
+    // const initialSchedule = [
+    //     {
+    //         id: 1,
+    //         doctor: "Nguyễn Hoàng Huy",
+    //         date: "2025-03-09",
+    //         hour: ["8H", "10H"],
+    //     },
+    //     {
+    //         id: 2,
+    //         doctor: "Nguyễn Hoàng Huy",
+    //         date: "2025-03-05",
+    //         hour: ["10H"],
+    //     },
+    //     { id: 3, doctor: "Nguyễn Hoàng Huy", date: "2025-03-08", hour: ["7H"] },
+    // ];
 
-    const [currentDate, setCurrentDate] = useState(new Date(2025, 2, 3));
+    const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 7));
     const [weekDates, setWeekDates] = useState([]);
-    const [schedule, setSchedule] = useState(initialSchedule);
+    const [schedule, setSchedule] = useState([]);
     const [selectedDelete, setSelectedDelete] = useState(null);
 
     useEffect(() => {
@@ -59,6 +59,168 @@ function WorkSchedule() {
         });
         setWeekDates(week);
     }, [currentDate]);
+
+    //     useEffect(() => {
+    //     const fetchSchedule = async () => {
+    //         try {
+    //             const res = await fetch(
+    //                 "http://localhost:5000/api/doctor/view_work_schedule",
+    //                 {
+    //                     credentials: "include",
+    //                 }
+    //             );
+
+    //             if (!res.ok) {
+    //                 console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
+    //                 // setSchedule(initialSchedule); // fallback nếu lỗi
+    //                 return;
+    //             }
+
+    //             const data = await res.json();
+
+    //             if (!Array.isArray(data)) {
+    //                 console.warn("⚠️ Dữ liệu không phải là mảng. Trả về:", data);
+    //                 // setSchedule(initialSchedule); // fallback nếu không đúng định dạng
+    //                 return;
+    //             }
+
+    //             const formatted = data.map((item) => {
+    //                 const start = parseInt(item.datetime_start);
+    //                 const end = parseInt(item.datetime_end);
+    //                 const hours = [];
+    //                 for (let i = start; i < end; i++) {
+    //                     hours.push(`${i}H`);
+    //                 }
+    //                 return {
+    //                     id: item.schedule_id,
+    //                     doctor: item.doctor_name || "Bác sĩ",
+    //                     date: item.date,
+    //                     hour: hours,
+    //                 };
+    //             });
+
+    //             console.log("✅ Lịch từ API:", formatted);
+    //             setSchedule(formatted);
+    //         } catch (error) {
+    //             console.error("❌ Lỗi khi gọi API:", error);
+    //             // setSchedule(initialSchedule); // fallback nếu có exception
+    //         }
+    //     };
+
+    //     fetchSchedule();
+    // }, []);
+
+    // useEffect(() => {
+    //     const fetchSchedule = async () => {
+    //         try {
+    //             const res = await fetch(
+    //                 "http://localhost:5000/api/doctor/view_work_schedule",
+    //                 {
+    //                     credentials: "include",
+    //                 }
+    //             );
+
+    //             if (!res.ok) {
+    //                 console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
+    //                 return;
+    //             }
+
+    //             const contentType = res.headers.get("content-type");
+    //             if (!contentType || !contentType.includes("application/json")) {
+    //                 console.warn("⚠️ Phản hồi không phải JSON");
+    //                 return;
+    //             }
+
+    //             const data = await res.json();
+
+    //             // ⚠️ Kiểm tra kỹ dữ liệu trước khi map
+    //             if (!Array.isArray(data)) {
+    //                 console.warn("❗ Dữ liệu không phải mảng:", data);
+    //                 return;
+    //             }
+
+    //             const formatted = data
+    //                 .filter(
+    //                     (item) =>
+    //                         item &&
+    //                         typeof item.datetime_start !== "undefined" &&
+    //                         typeof item.datetime_end !== "undefined" &&
+    //                         typeof item.date === "string"
+    //                 )
+    //                 .map((item) => {
+    //                     const start = parseInt(item.datetime_start);
+    //                     const end = parseInt(item.datetime_end);
+    //                     const hours = [];
+    //                     for (let i = start; i < end; i++) {
+    //                         hours.push(`${i}H`);
+    //                     }
+    //                     return {
+    //                         id: item.schedule_id,
+    //                         doctor: item.doctor_name || "Bác sĩ",
+    //                         date: item.date,
+    //                         hour: hours,
+    //                     };
+    //                 });
+
+    //             console.log("✅ Lịch từ API:", formatted);
+    //             setSchedule(formatted);
+    //         } catch (error) {
+    //             console.error("❌ Lỗi khi gọi API:", error);
+    //         }
+    //     };
+
+    //     fetchSchedule();
+    // }, []);
+const [data, setData] = useState(null);
+    useEffect(() => {
+        const fetchSchedule = async () => {
+            try {
+                const res = await fetch(
+                    "http://localhost:5000/api/doctor/view_work_schedule",
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
+
+                if (!res.ok) {
+                    // const text = await res.json; // lấy nội dung lỗi
+                    console.warn("❌ Lỗi API:");
+                    return;
+                }
+
+                const repon = await res.json();
+                setData(repon);
+
+                // if (!Array.isArray(data)) {
+                //     console.warn("⚠️ Dữ liệu không đúng định dạng:", data);
+                //     return;
+                // }
+
+                // const formatted = data.map((item) => {
+                //     const start = parseInt(item.datetime_start);
+                //     const end = parseInt(item.datetime_end);
+                //     const hours = [];
+                //     for (let i = start; i < end; i++) {
+                //         hours.push(`${i}H`);
+                //     }
+                //     return {
+                //         id: item.schedule_id,
+                //         doctor: item.doctor_name || "Bác sĩ",
+                //         date: item.date,
+                //         hour: hours,
+                //     };
+                // });
+
+                // console.log("✅ Lịch làm việc:", formatted);
+                // setSchedule(formatted);
+            } catch (error) {
+                console.error("❌ Lỗi kết nối:", error);
+            }
+        };
+
+        fetchSchedule();
+    }, []);
 
     const formatDate = (date) =>
         date.toLocaleDateString("vi-VN", {

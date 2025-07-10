@@ -6,6 +6,7 @@ var logger = require('morgan');
 var cors = require('cors');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
+require('dotenv').config();
 const Healthy= require('./model/Heathy');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -16,9 +17,26 @@ app.use(cors({
   // origin: '*', // hoặc cụ thể: http://localhost:3000
    origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true // Cho phép gửi cookie
 }));
+
+
+
+Healthy.query('SELECT NOW()')
+  .then(res => console.log('✅ DB connected:', res.rows[0]))
+  .catch(err => console.error('❌ DB connection error:', err));
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(logger('dev'));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use(session({
   store: new pgSession({
@@ -35,19 +53,6 @@ app.use(session({
   } 
 }));
 
-Healthy.query('SELECT NOW()')
-  .then(res => console.log('✅ DB connected:', res.rows[0]))
-  .catch(err => console.error('❌ DB connection error:', err));
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
