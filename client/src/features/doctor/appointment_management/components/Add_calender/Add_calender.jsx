@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes, { object } from "prop-types";
 import { useState } from "react";
 import "./style_Add.scss";
@@ -68,6 +68,65 @@ function Add_calender(props) {
             window.location.reload(); // 🔁 reload lại trang
         }, 3000);
     };
+    const [doctor, setDoctor] = useState([]);
+    useEffect(() => {
+        const featchdata= async () => {
+            try {
+                const res = await fetch(
+                    "http://localhost:5000/api/doctor",
+                    {
+                        method: "GET",
+                        credentials: "include", // Đảm bảo gửi cookie phiên làm việc
+                    }
+                );
+                if (!res.ok) {
+                    console.error("❌ Lỗi API:");
+                    return;
+                }
+                const repon = await res.json();
+                console.log("📥 Dữ liệu lịch làm việc:", repon[0]);
+                
+                setDoctor(repon[0]);
+            } catch (error) {
+                console.error("❌ Lỗi khi lấy lịch làm việc:", error);
+            }
+        }
+        featchdata();
+    }, []); // Chạy khi data thay đổi
+    const handleAdd= async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch("http://localhost:5000/api/doctor", {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ngay: data.ngay,
+                    thoigianstart: data.thoigianstart,
+                    thoigianend: data.thoigianend,
+                    doctor: data.doctor,
+                }),
+                credentials: "include", // Đảm bảo gửi cookie phiên làm việc
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("❌ Lỗi API:", response.status, errorText);
+                setMeseger("Lỗi khi thêm lịch làm việc");
+                setColor("#f03242");
+                return;
+            }
+            const result = await response.json();
+            console.log("✅ Thêm lịch làm việc thành công:", result);
+            setMeseger("Lịch làm việc đã được thêm thành công");
+            setColor("green");
+        } catch (error) {
+            console.error("❌ Lỗi khi thêm lịch làm việc:", error
+);
+            setMeseger("Lỗi khi thêm lịch làm việc");
+            setColor("#f03242");
+        }
+    };
     return (
         <div className="add">
             {meseger && (
@@ -119,7 +178,9 @@ function Add_calender(props) {
                         <input
                             type="text"
                             name="doctor"
+                            value={doctor.username}
                             id="input5"
+                            readOnly
                             placeholder="Nguyễn Hoàng Huy"
                             onChange={setinput}
                         />
@@ -130,5 +191,5 @@ function Add_calender(props) {
         </div>
     );
 }
-//1
+
 export default Add_calender;

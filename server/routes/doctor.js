@@ -18,8 +18,11 @@ router.get('/view_appointment',upload.none(), async function(req, res, next) {
 // Lấy lịch làm việc của bác sĩ(doctor)
 router.get('/view_work_schedule', async function(req, res, next) {
   try {
+     console.log("📥 GET /view_work_schedule");
+    console.log("🍪 Session:", req.session);
+    console.log("👤 Session User:", req.session?.user);
     const doctorId = req.session.user.id; // Lấy doctorId từ session
-    const result = await healthy.query("SELECT * FROM doctorschedule WHERE doctor_id = $1", [doctorId]);
+    const result = await healthy.query("SELECT * FROM doctorschedule WHERE user_id = $1", [doctorId]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /doctor/view_work_schedule:", error);
@@ -42,8 +45,8 @@ router.get('/confirm_refuse', async function (req, res, next) {
 router.get('/',async function(req, res, next) {
   try {
     const doctorId = req.session.user.id; // Lấy doctorId từ session
-    await healthy.query("SELECT * FROM doctor WHERE user_id = $1", [doctorId]);
-    res.status(200).json({ message: "Get doctor successfully" });
+    const result=await healthy.query("SELECT * FROM doctor d, users u WHERE d.user_id=u.user_id and u.user_id = $1", [doctorId]);
+    res.status(200).json(result.rows );
   } catch (error) {
     console.error("Error in GET /doctor:", error);
     res.status(500).json({ message: "Internal server error" });
