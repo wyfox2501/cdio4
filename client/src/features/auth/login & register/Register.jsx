@@ -448,7 +448,7 @@ const handleChang = (event) => {
               />
             </p>
             {imageSrc && <img src={imageSrc} alt="Preview" />}
-            <button type="submit">Sign In</button>
+            <button type="submit">Sign Up</button>
           </form>
         )}
         <p>

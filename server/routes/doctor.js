@@ -58,7 +58,7 @@ router.post('/',upload.none(),async function(req, res, next) {
     const { date, time_start, time_end, } = req.body;
     const doctorId = req.session.user.id; // Lấy doctorId từ session
     await healthy.query(
-      "INSERT INTO users (user_id,date, datetime_start, datetime_end) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO doctorschedule (user_id,date, datetime_start, datetime_end) VALUES ($1, $2, $3, $4) RETURNING *",
       [doctorId, date, time_start, time_end]
     );
     res.status(201).json({ message: "Add doctorschedule successfully" });
