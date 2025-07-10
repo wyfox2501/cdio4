@@ -30,26 +30,11 @@ const hours = [
 ];
 
 function WorkSchedule() {
-    // const initialSchedule = [
-    //     {
-    //         id: 1,
-    //         doctor: "Nguyễn Hoàng Huy",
-    //         date: "2025-03-09",
-    //         hour: ["8H", "10H"],
-    //     },
-    //     {
-    //         id: 2,
-    //         doctor: "Nguyễn Hoàng Huy",
-    //         date: "2025-03-05",
-    //         hour: ["10H"],
-    //     },
-    //     { id: 3, doctor: "Nguyễn Hoàng Huy", date: "2025-03-08", hour: ["7H"] },
-    // ];
-
     const [currentDate, setCurrentDate] = useState(new Date(2025, 6, 7));
     const [weekDates, setWeekDates] = useState([]);
     const [schedule, setSchedule] = useState([]);
     const [selectedDelete, setSelectedDelete] = useState(null);
+    const [userName, setUserName] = useState("");
 
     useEffect(() => {
         const week = Array.from({ length: 7 }, (_, i) => {
@@ -60,167 +45,73 @@ function WorkSchedule() {
         setWeekDates(week);
     }, [currentDate]);
 
-    //     useEffect(() => {
-    //     const fetchSchedule = async () => {
-    //         try {
-    //             const res = await fetch(
-    //                 "http://localhost:5000/api/doctor/view_work_schedule",
-    //                 {
-    //                     credentials: "include",
-    //                 }
-    //             );
-
-    //             if (!res.ok) {
-    //                 console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
-    //                 // setSchedule(initialSchedule); // fallback nếu lỗi
-    //                 return;
-    //             }
-
-    //             const data = await res.json();
-
-    //             if (!Array.isArray(data)) {
-    //                 console.warn("⚠️ Dữ liệu không phải là mảng. Trả về:", data);
-    //                 // setSchedule(initialSchedule); // fallback nếu không đúng định dạng
-    //                 return;
-    //             }
-
-    //             const formatted = data.map((item) => {
-    //                 const start = parseInt(item.datetime_start);
-    //                 const end = parseInt(item.datetime_end);
-    //                 const hours = [];
-    //                 for (let i = start; i < end; i++) {
-    //                     hours.push(`${i}H`);
-    //                 }
-    //                 return {
-    //                     id: item.schedule_id,
-    //                     doctor: item.doctor_name || "Bác sĩ",
-    //                     date: item.date,
-    //                     hour: hours,
-    //                 };
-    //             });
-
-    //             console.log("✅ Lịch từ API:", formatted);
-    //             setSchedule(formatted);
-    //         } catch (error) {
-    //             console.error("❌ Lỗi khi gọi API:", error);
-    //             // setSchedule(initialSchedule); // fallback nếu có exception
-    //         }
-    //     };
-
-    //     fetchSchedule();
-    // }, []);
-
-    // useEffect(() => {
-    //     const fetchSchedule = async () => {
-    //         try {
-    //             const res = await fetch(
-    //                 "http://localhost:5000/api/doctor/view_work_schedule",
-    //                 {
-    //                     credentials: "include",
-    //                 }
-    //             );
-
-    //             if (!res.ok) {
-    //                 console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
-    //                 return;
-    //             }
-
-    //             const contentType = res.headers.get("content-type");
-    //             if (!contentType || !contentType.includes("application/json")) {
-    //                 console.warn("⚠️ Phản hồi không phải JSON");
-    //                 return;
-    //             }
-
-    //             const data = await res.json();
-
-    //             // ⚠️ Kiểm tra kỹ dữ liệu trước khi map
-    //             if (!Array.isArray(data)) {
-    //                 console.warn("❗ Dữ liệu không phải mảng:", data);
-    //                 return;
-    //             }
-
-    //             const formatted = data
-    //                 .filter(
-    //                     (item) =>
-    //                         item &&
-    //                         typeof item.datetime_start !== "undefined" &&
-    //                         typeof item.datetime_end !== "undefined" &&
-    //                         typeof item.date === "string"
-    //                 )
-    //                 .map((item) => {
-    //                     const start = parseInt(item.datetime_start);
-    //                     const end = parseInt(item.datetime_end);
-    //                     const hours = [];
-    //                     for (let i = start; i < end; i++) {
-    //                         hours.push(`${i}H`);
-    //                     }
-    //                     return {
-    //                         id: item.schedule_id,
-    //                         doctor: item.doctor_name || "Bác sĩ",
-    //                         date: item.date,
-    //                         hour: hours,
-    //                     };
-    //                 });
-
-    //             console.log("✅ Lịch từ API:", formatted);
-    //             setSchedule(formatted);
-    //         } catch (error) {
-    //             console.error("❌ Lỗi khi gọi API:", error);
-    //         }
-    //     };
-
-    //     fetchSchedule();
-    // }, []);
-const [data, setData] = useState(null);
+    // 🔹 Lấy tên user từ session
     useEffect(() => {
+        const fetchUserName = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/users/me", {
+                    credentials: "include",
+                });
+                if (!res.ok) {
+                    console.warn("⚠️ Không lấy được user:", res.status);
+                    return;
+                }
+                const data = await res.json();
+                console.log("👤 User:", data);
+                setUserName(data.name || "Bác sĩ");
+            } catch (err) {
+                console.error("❌ Lỗi khi lấy user:", err);
+            }
+        };
+        fetchUserName();
+    }, []);
+
+    // 🔹 Lấy lịch khi có userName
+    useEffect(() => {
+        if (!userName) return; // Chờ có tên rồi mới fetch
+
         const fetchSchedule = async () => {
             try {
                 const res = await fetch(
                     "http://localhost:5000/api/doctor/view_work_schedule",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
+                    { credentials: "include" }
                 );
 
                 if (!res.ok) {
-                    // const text = await res.json; // lấy nội dung lỗi
-                    console.warn("❌ Lỗi API:");
+                    console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
                     return;
                 }
 
-                const repon = await res.json();
-                setData(repon);
+                const data = await res.json();
+                const formatted = data.map((item) => {
+                    const startUTC =
+                        new Date(item.datetime_start).getUTCHours() + 7;
+                    const endUTC =
+                        new Date(item.datetime_end).getUTCHours() + 7;
+                    const start = startUTC >= 24 ? startUTC - 24 : startUTC;
+                    const end = endUTC >= 24 ? endUTC - 24 : endUTC;
 
-                // if (!Array.isArray(data)) {
-                //     console.warn("⚠️ Dữ liệu không đúng định dạng:", data);
-                //     return;
-                // }
+                    const hours = [];
+                    for (let i = start; i < end; i++) {
+                        hours.push(`${i}H`);
+                    }
+                    return {
+                        id: item.schedule_id,
+                        doctor: userName, // ✅ dùng tên user thay "Bác sĩ"
+                        date: item.date,
+                        hour: hours,
+                    };
+                });
 
-                // const formatted = data.map((item) => {
-                //     const start = parseInt(item.datetime_start);
-                //     const end = parseInt(item.datetime_end);
-                //     const hours = [];
-                //     for (let i = start; i < end; i++) {
-                //         hours.push(`${i}H`);
-                //     }
-                //     return {
-                //         id: item.schedule_id,
-                //         doctor: item.doctor_name || "Bác sĩ",
-                //         date: item.date,
-                //         hour: hours,
-                //     };
-                // });
-
-                // console.log("✅ Lịch làm việc:", formatted);
-                // setSchedule(formatted);
+                console.log("✅ Lịch từ API:", formatted);
+                setSchedule(formatted);
             } catch (error) {
-                console.error("❌ Lỗi kết nối:", error);
+                console.error("❌ Lỗi khi gọi API:", error);
             }
         };
 
         fetchSchedule();
-    }, []);
+    }, [userName]);
 
     const formatDate = (date) =>
         date.toLocaleDateString("vi-VN", {
@@ -228,18 +119,15 @@ const [data, setData] = useState(null);
             month: "2-digit",
             year: "numeric",
         });
-
     const isSameDay = (d1, d2) =>
         d1.getFullYear() === d2.getFullYear() &&
         d1.getMonth() === d2.getMonth() &&
         d1.getDate() === d2.getDate();
-
     const goToNextWeek = () => {
         const next = new Date(currentDate);
         next.setDate(currentDate.getDate() + 7);
         setCurrentDate(next);
     };
-
     const goToPreviousWeek = () => {
         const prev = new Date(currentDate);
         prev.setDate(currentDate.getDate() - 7);
@@ -248,7 +136,7 @@ const [data, setData] = useState(null);
 
     const handleDeleteClick = (date, hour, doctor) => {
         const numericHour = parseInt(hour.replace("H", ""));
-        const formattedDate = new Date(date).toDateString(); // sửa lại
+        const formattedDate = new Date(date).toDateString();
         setSelectedDelete({
             date: formattedDate,
             timeStart: numericHour,
@@ -257,7 +145,6 @@ const [data, setData] = useState(null);
         });
     };
 
-    // ✅ SỬA NGAY ĐÂY
     const DeletePopup = ({ dataDelete, onClose, schedule, setSchedule }) => {
         const [data] = useState({
             ngay: dataDelete.date || "",
@@ -266,31 +153,60 @@ const [data, setData] = useState(null);
             doctor: dataDelete.doctor || "",
         });
 
-        const handleSubmit = (e) => {
+        const handleSubmit = async (e) => {
             e.preventDefault();
+            const matched = schedule.find((item) => {
+                const isSameDate =
+                    new Date(item.date).toDateString() ===
+                    new Date(dataDelete.date).toDateString();
+                return (
+                    isSameDate &&
+                    item.doctor === dataDelete.doctor &&
+                    item.hour.includes(`${dataDelete.timeStart}H`)
+                );
+            });
+            if (!matched) {
+                alert("Không tìm thấy lịch để xóa!");
+                return;
+            }
 
-            const updatedSchedule = schedule
-                .map((item) => {
-                    // Dùng Date().toDateString() để so sánh
-                    const isSameDate =
-                        new Date(item.date).toDateString() ===
-                        new Date(dataDelete.date).toDateString();
-
-                    if (isSameDate && item.doctor === dataDelete.doctor) {
-                        const newHourList = item.hour.filter(
-                            (h) =>
-                                parseInt(h.replace("H", "")) !==
-                                dataDelete.timeStart
-                        );
-                        return { ...item, hour: newHourList };
+            try {
+                const res = await fetch(
+                    `http://localhost:5000/api/doctor/${matched.id}`,
+                    {
+                        method: "DELETE",
+                        credentials: "include",
                     }
-                    return item;
-                })
-                .filter((item) => item.hour.length > 0);
+                );
+                if (!res.ok) {
+                    alert("Xóa thất bại trên server");
+                    return;
+                }
 
-            setSchedule(updatedSchedule);
-            alert("Xóa thành công");
-            onClose();
+                const updatedSchedule = schedule
+                    .map((item) => {
+                        const isSameDate =
+                            new Date(item.date).toDateString() ===
+                            new Date(dataDelete.date).toDateString();
+                        if (isSameDate && item.doctor === dataDelete.doctor) {
+                            const newHourList = item.hour.filter(
+                                (h) =>
+                                    parseInt(h.replace("H", "")) !==
+                                    dataDelete.timeStart
+                            );
+                            return { ...item, hour: newHourList };
+                        }
+                        return item;
+                    })
+                    .filter((item) => item.hour.length > 0);
+
+                setSchedule(updatedSchedule);
+                alert("✅ Xóa thành công!");
+                onClose();
+            } catch (err) {
+                console.error("❌ Lỗi khi gọi API DELETE:", err);
+                alert("Xóa thất bại!");
+            }
         };
 
         return (
@@ -307,7 +223,6 @@ const [data, setData] = useState(null);
                                     <span>Ngày</span>
                                     <input
                                         type="text"
-                                        name="ngay"
                                         value={new Date(
                                             data.ngay
                                         ).toLocaleDateString("vi-VN")}
@@ -318,7 +233,6 @@ const [data, setData] = useState(null);
                                     <span>Thời Gian Bắt Đầu</span>
                                     <input
                                         type="number"
-                                        name="thoigianstart"
                                         value={data.thoigianstart}
                                         readOnly
                                     />
@@ -327,7 +241,6 @@ const [data, setData] = useState(null);
                                     <span>Thời Gian Kết Thúc</span>
                                     <input
                                         type="number"
-                                        name="thoigianend"
                                         value={data.thoigianend}
                                         readOnly
                                     />
@@ -336,7 +249,6 @@ const [data, setData] = useState(null);
                                     <span>Doctor</span>
                                     <input
                                         type="text"
-                                        name="doctor"
                                         value={data.doctor}
                                         readOnly
                                     />

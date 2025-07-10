@@ -1,19 +1,16 @@
-import React, { useEffect } from "react";
-import PropTypes, { object } from "prop-types";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./style_Add.scss";
 
-Add_calender.propTypes = {};
-function Add_calender(props) {
+function Add_calender() {
     const [data, setData] = useState({
         ngay: "",
         thoigianstart: "",
         thoigianend: "",
-        doctor: "",
     });
     const [meseger, setMeseger] = useState("");
     const [errors, setErrors] = useState({});
     const [color, setColor] = useState("#f03242");
+    const [doctor, setDoctor] = useState({});
     const setinput = (e) => {
         setData({
             ...data,
@@ -24,165 +21,175 @@ function Add_calender(props) {
             [e.target.name]: "",
         });
     };
-    const check_input = (e) => {
-        e.preventDefault();
-        const newErorrs = {};
-        if (!data.ngay.trim()) {
-            newErorrs.ngay = "vui lòng nhập ngày";
-        }
 
+    useEffect(() => {
+        const fetchDoctor = async () => {
+            try {
+                const res = await fetch("http://localhost:5000/api/doctor", {
+                    method: "GET",
+                    credentials: "include",
+                });
+                if (!res.ok) {
+                    console.error("❌ Lỗi lấy bác sĩ:", res.status);
+                    return;
+                }
+                const json = await res.json();
+                console.log("📥 Dữ liệu doctor:", json[0]);
+                setDoctor(json[0]); // Lấy tên bác sĩ để hiển thị
+            } catch (error) {
+                console.error("❌ Lỗi khi fetch bác sĩ:", error);
+            }
+        };
+        fetchDoctor();
+    }, []);
+
+    const check_input = async (e) => {
+        e.preventDefault();
+        const newErrors = {};
+        if (!data.ngay.trim()) {
+            newErrors.ngay = "Vui lòng nhập ngày";
+        }
         if (!data.thoigianstart.trim()) {
-            newErorrs.thoigianstart = "vui lòng nhập thời gian bắt đầu";
+            newErrors.thoigianstart = "Vui lòng nhập giờ bắt đầu";
         } else if (
             isNaN(data.thoigianstart) ||
             data.thoigianstart < 7 ||
             data.thoigianstart > 21
         ) {
-            newErorrs.thoigianstart = "Giờ bắt đầu không hợp lệ (7 - 21)";
+            newErrors.thoigianstart = "Giờ bắt đầu không hợp lệ (7 - 21)";
         }
-
         if (!data.thoigianend.trim()) {
-            newErorrs.thoigianend = "vui lòng nhập thời gian kết thúc";
+            newErrors.thoigianend = "Vui lòng nhập giờ kết thúc";
         } else if (
             isNaN(data.thoigianend) ||
             data.thoigianend < 0 ||
             data.thoigianend > 23
         ) {
-            newErorrs.thoigianend = "Giờ kết thúc không hợp lệ (0 - 23)";
+            newErrors.thoigianend = "Giờ kết thúc không hợp lệ (0 - 23)";
         } else if (parseInt(data.thoigianend) <= parseInt(data.thoigianstart)) {
-            newErorrs.thoigianend = "Giờ kết thúc phải lớn hơn giờ bắt đầu";
+            newErrors.thoigianend = "Giờ kết thúc phải lớn hơn giờ bắt đầu";
         }
-
-        if (!data.doctor.trim()) newErorrs.doctor = "vui lòng nhập doctor";
-        if (Object.keys(newErorrs).length > 0) {
-            setErrors(newErorrs);
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             setMeseger("Lỗi");
-        } else {
-            setErrors({});
-            setMeseger("Lưu Thành Công");
-            setColor(!color ? "#f03242" : "green");
+            setColor("#f03242");
+            return;
         }
-        //chạy 3s sẽ tắt là load trang
-        setTimeout(() => {
-            setMeseger("");
-            window.location.reload(); // 🔁 reload lại trang
-        }, 3000);
-    };
-    const [doctor, setDoctor] = useState([]);
-    useEffect(() => {
-        const featchdata= async () => {
-            try {
-                const res = await fetch(
-                    "http://localhost:5000/api/doctor",
-                    {
-                        method: "GET",
-                        credentials: "include", // Đảm bảo gửi cookie phiên làm việc
-                    }
-                );
-                if (!res.ok) {
-                    console.error("❌ Lỗi API:");
-                    return;
-                }
-                const repon = await res.json();
-                console.log("📥 Dữ liệu lịch làm việc:", repon[0]);
-                
-                setDoctor(repon[0]);
-            } catch (error) {
-                console.error("❌ Lỗi khi lấy lịch làm việc:", error);
-            }
-        }
-        featchdata();
-    }, []); // Chạy khi data thay đổi
-    const handleAdd= async (e) => {
-        e.preventDefault();
         try {
+            // Format date to YYYY-MM-DD
+            const formattedDate = data.ngay; // 'YYYY-MM-DD'
+
+            // Tạo datetime_start và datetime_end dạng 'YYYY-MM-DD HH:MM:SS'
+            const datetime_start = `${formattedDate} ${String(
+                data.thoigianstart
+            ).padStart(2, "0")}:00:00`;
+            const datetime_end = `${formattedDate} ${String(
+                data.thoigianend
+            ).padStart(2, "0")}:00:00`;
+
             const response = await fetch("http://localhost:5000/api/doctor", {
-                method: "POST", 
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({
-                    ngay: data.ngay,
-                    thoigianstart: data.thoigianstart,
-                    thoigianend: data.thoigianend,
-                    doctor: data.doctor,
+                    date: formattedDate,
+                    time_start: datetime_start,
+                    time_end: datetime_end,
                 }),
-                credentials: "include", // Đảm bảo gửi cookie phiên làm việc
             });
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error("❌ Lỗi API:", response.status, errorText);
-                setMeseger("Lỗi khi thêm lịch làm việc");
+                setMeseger("Lỗi khi thêm lịch");
                 setColor("#f03242");
                 return;
             }
-            const result = await response.json();
-            console.log("✅ Thêm lịch làm việc thành công:", result);
-            setMeseger("Lịch làm việc đã được thêm thành công");
+            console.log("✅ Thêm lịch thành công");
+            setMeseger("Thêm lịch thành công!");
             setColor("green");
+            // Reset form sau khi thêm
+            setData({
+                ngay: "",
+                thoigianstart: "",
+                thoigianend: "",
+            });
         } catch (error) {
-            console.error("❌ Lỗi khi thêm lịch làm việc:", error
-);
-            setMeseger("Lỗi khi thêm lịch làm việc");
+            console.error("❌ Lỗi fetch:", error);
+            setMeseger("Lỗi khi thêm lịch");
             setColor("#f03242");
         }
     };
+
     return (
         <div className="add">
             {meseger && (
-                <p style={{ backgroundColor: color, color: "white" }}>
+                <p
+                    style={{
+                        backgroundColor: color,
+                        color: "white",
+                        padding: "8px",
+                    }}
+                >
                     {meseger}
                 </p>
             )}
-            <form action="" onSubmit={check_input}>
-                <h2>Thêm lịch làm việc</h2>
+            <form onSubmit={check_input}>
+                <h2 style={{ color: "red", textAlign: "center" }}>
+                    Thêm lịch làm việc
+                </h2>
                 <div className="insert">
                     <div className="date">
-                        <span> Ngày</span>
+                        <span>Ngày</span>
                         <input
                             type="date"
                             name="ngay"
-                            id="input5"
+                            value={data.ngay}
                             onChange={setinput}
                         />
+                        {errors.ngay && (
+                            <p style={{ color: "red" }}>{errors.ngay}</p>
+                        )}
                     </div>
                     <div className="hourStart">
                         <span>Thời Gian Bắt Đầu</span>
                         <input
                             type="number"
                             name="thoigianstart"
-                            id=""
-                            min={"7"}
-                            max={"20"}
-                            style={{ marginRight: "2.2rem" }}
+                            min="7"
+                            max="20"
                             placeholder="7H"
+                            value={data.thoigianstart}
                             onChange={setinput}
                         />
+                        {errors.thoigianstart && (
+                            <p style={{ color: "red" }}>
+                                {errors.thoigianstart}
+                            </p>
+                        )}
                     </div>
                     <div className="hourEnd">
                         <span>Thời Gian Kết Thúc</span>
                         <input
                             type="number"
                             name="thoigianend"
-                            id=""
-                            min={"8"}
-                            max={"21"}
-                            style={{ marginRight: "2.2rem" }}
+                            min="8"
+                            max="21"
                             placeholder="11H"
+                            value={data.thoigianend}
                             onChange={setinput}
                         />
+                        {errors.thoigianend && (
+                            <p style={{ color: "red" }}>{errors.thoigianend}</p>
+                        )}
                     </div>
-
                     <div className="doctor">
                         <span>Doctor</span>
                         <input
                             type="text"
-                            name="doctor"
-                            value={doctor.username}
-                            id="input5"
+                            value={doctor.username || "Tên bác sĩ"}
                             readOnly
-                            placeholder="Nguyễn Hoàng Huy"
-                            onChange={setinput}
+                            placeholder="Tên bác sĩ"
                         />
                     </div>
                 </div>

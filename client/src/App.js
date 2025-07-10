@@ -18,7 +18,7 @@ import BookingInfo from "./features/customer/make_an_appointment/BookingInfo.jsx
 import AppointmentConfirmation from "./features/customer/make_an_appointment/AppointmentConfirmation.jsx";
 import Schedule from "./features/customer/make_an_appointment/Schedule.jsx";
 import ProfileCustomer from "./features/customer/profileCustomer/profileCustomer.jsx";
-import Maneger_healthy from "./features/customer/healthy_manager/Maneger_healthy.jsx";
+// import Maneger_healthy from "./features/customer/healthy_manager/Maneger_healthy.jsx";
 import Advise from "./features/customer/advise/adviseCustomer.jsx";
 //admin
 import Layout_admin from './features/admin/adminlayout.jsx';
@@ -30,6 +30,7 @@ import Register from "./features/auth/login & register/Register";
 import Layout_Auth from "./features/auth/layout/AuthLayout";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Unauthorized from "./components/unauthorized.jsx";
+
 function App() {
   return (
     <div className="App">
@@ -75,7 +76,7 @@ function App() {
                 </Route>
                 <Route path="tu-van" element={<Advise />} />
                 <Route path="quan-li-tai-khoan" element={<ProfileCustomer />} />
-                <Route path="quan-li-ke-hoach" element={<Maneger_healthy />} />
+                {/* <Route path="quan-li-ke-hoach" element={<Maneger_healthy />} /> */}
               </Route>
           </Route>
       </Routes>
