@@ -8,7 +8,9 @@ import Deal_appointment from "./features/doctor/appointment_management/component
 import View_appointment from "./features/doctor/appointment_management/components/View_calendar_List/appointment.jsx";
 import View_work_calendar from "./features/doctor/appointment_management/components/View_calendar_List/work_schedule.jsx";
 import Home_appointment from "./features/doctor/appointment_management/pages/home/home_appointment_management.jsx";
-import DoctorPayment from "./features/doctor/payment/DoctorPayment/DoctorPayment.jsx";
+import DoctorPayment from "./features/doctor/DoctorPayment/DoctorPayment.jsx";
+import ProfileDoctor from "./features/doctor/profileDoctor/profileDoctor.jsx";
+import AdviseDoctor from "./features/doctor/adviseDoctor/adviseDoctor.jsx";
 // patient
 import Layout_customer from "./features/customer/Layout_customer.jsx";
 import DoctorSelect from "./features/customer/make_an_appointment/DoctorSelection.jsx";
@@ -18,7 +20,7 @@ import BookingInfo from "./features/customer/make_an_appointment/BookingInfo.jsx
 import AppointmentConfirmation from "./features/customer/make_an_appointment/AppointmentConfirmation.jsx";
 import Schedule from "./features/customer/make_an_appointment/Schedule.jsx";
 import ProfileCustomer from "./features/customer/profileCustomer/profileCustomer.jsx";
-import Maneger_healthy from "./features/customer/healthy_manager/Maneger_healthy.jsx";
+import Maneger_healthy from "./features/customer/maneger_healthy/Maneger_healthy.jsx";
 import Advise from "./features/customer/advise/adviseCustomer.jsx";
 //admin
 import Layout_admin from './features/admin/adminlayout.jsx';
@@ -53,6 +55,8 @@ function App() {
               <Route path="chotLich" element={<Deal_appointment />} />
             </Route>
             <Route path="nop-tien" element={<DoctorPayment />} />
+            <Route path="tu-van" element={<AdviseDoctor />} />
+            <Route path="quan-li-tai-khoan" element={<ProfileDoctor />} />
           </Route>
         </Route>
         <Route path="/admin" element={<PrivateRoute allowedRoles={'admin'} />}>

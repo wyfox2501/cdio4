@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './style.scss';
 
@@ -38,7 +38,22 @@ function Home(props) {
         const fatPercent = (((w - idealW) / idealW) * 100).toFixed(1);
         setFatPercentage(fatPercent);
     };
-
+    const [doctors, setDoctors] = useState([]);
+    useEffect(() => {
+        const featch=async()=>{
+            try {
+                const rep=await fetch('http://localhost:5000/api/patient/view_doctor', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                const result=await rep.json();
+                setDoctors(result);
+            } catch (error) {
+                alert(error);
+            }
+        }
+        featch();
+    }, []);
     return (
         <div className="tong">
             <div className="bentrai">
@@ -112,7 +127,7 @@ function Home(props) {
             </div>
 
 
-
+        
         </div>
     );
 }

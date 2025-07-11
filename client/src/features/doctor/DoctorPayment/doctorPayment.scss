@@ -1,0 +1,31 @@
+.doctor-payment {
+  width: 80vw;
+  height: auto;
+//   border: 1px solid #ac2525;
+  margin-left: 10vw;
+  text-align: center;
+  background-color: rgb(239, 235, 230);
+  box-shadow: 4px 4px 20px rgba(69, 68, 68, 0.1);
+  border-radius: 20px;
+  h2{
+    padding-top: 2rem;
+    font-size: 2rem;
+    color: black;
+    margin-top: 20px;
+  }
+  p{
+    width: 30%;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+    // border: 1px solid #ac2525;
+    font-size: 1.2rem;
+    color: black;
+    margin-top: 20px;
+    margin-left: 35%;
+    span{
+        font-weight: bold;
+        float: left;
+    }
+  }
+}

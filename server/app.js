@@ -6,11 +6,15 @@ var logger = require('morgan');
 var cors = require('cors');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
+const cron = require('node-cron');
+const checkVCBTransactions = require('./routes/checkVCB');
 require('dotenv').config();
 const Healthy= require('./model/Heathy');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var doctorRouter = require('./routes/doctor');
+var patientRouter = require('./routes/patient');
+var paymentRouter = require('./routes/payment');
 var app = express();
 
 app.use(cors({
@@ -21,7 +25,10 @@ app.use(cors({
   credentials: true // Cho phép gửi cookie
 }));
 
-
+cron.schedule('*/1 * * * *', async () => {
+  console.log('⏳ Đang kiểm tra giao dịch VCB...');
+  await checkVCBTransactions();
+});
 
 Healthy.query('SELECT NOW()')
   .then(res => console.log('✅ DB connected:', res.rows[0]))
@@ -57,6 +64,8 @@ app.use(session({
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/doctor', doctorRouter);
+app.use('/api/patient', patientRouter);
+app.use('/api/payment', paymentRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

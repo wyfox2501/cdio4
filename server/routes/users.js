@@ -53,9 +53,15 @@ router.post('/doctor', upload.fields([
       [name, email, password, phone, cccd, birthday, sex, address, avata, 'doctor', "wait"]
     );
     const userId = result.rows[0].user_id;
+    // Lưu thông tin bác sĩ vào bảng doctor
    await healthy.query(
       "INSERT INTO doctor (user_id, specification, experience, image_Certification) VALUES ($1, $2, $3, $4) RETURNING *",
       [userId, specification, experience, image_Certification]
+    );
+    //lưu thông tin wallet của bác sĩ
+   await healthy.query(
+      "INSERT INTO wallet (wallet_id, total_money) VALUES ($1, $2) RETURNING *",
+      [userId, 0]
     );
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {

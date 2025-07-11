@@ -8,7 +8,7 @@ const healthy= require('../model/Heathy');
 router.get('/view_appointment',upload.none(), async function(req, res, next) {
   try {
     const doctorId = req.session.user.id; // Lấy doctorId từ session
-    const result = await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1", [doctorId]);
+    const result = await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId, 'confirm']);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /doctor/view_appointment:", error);
@@ -18,9 +18,9 @@ router.get('/view_appointment',upload.none(), async function(req, res, next) {
 // Lấy lịch làm việc của bác sĩ(doctor)
 router.get('/view_work_schedule', async function(req, res, next) {
   try {
-     console.log("📥 GET /view_work_schedule");
-    console.log("🍪 Session:", req.session);
-    console.log("👤 Session User:", req.session?.user);
+    //  console.log("📥 GET /view_work_schedule");
+    // console.log("🍪 Session:", req.session);
+    // console.log("👤 Session User:", req.session?.user);
     const doctorId = req.session.user.id; // Lấy doctorId từ session
     const result = await healthy.query("SELECT * FROM doctorschedule WHERE user_id = $1", [doctorId]);
     res.status(200).json(result.rows);
@@ -33,7 +33,7 @@ router.get('/view_work_schedule', async function(req, res, next) {
 router.get('/confirm_refuse', async function (req, res, next) {
   try {
     const doctorId = req.session.user.id;
-    const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId,"await"]);
+    const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId,"confirmed"]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /doctor/confirm_refuse:", error);
@@ -52,6 +52,17 @@ router.get('/',async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// lấy lịch sử khám bệnh của bác sĩ 
+route.get('/history',async function(req, res, next) {
+  try {
+    const doctorId = req.session.user.id; // Lấy doctorId từ session
+    const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId, 'successfully']);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error in GET /doctor/history:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 // Thêm lịch làm việc(doctor)
 router.post('/',upload.none(),async function(req, res, next) {
   try {
@@ -124,7 +135,7 @@ cron.schedule('1 0 * * *', async () => {
     await healthy.query(`
       UPDATE appointments
       SET status = 'successfully'
-      WHERE status = true AND appointment_date < CURDATE()
+      WHERE status = confirmed AND appointment_date < CURDATE()
     `);
   } catch (err) {
     console.error('Cron error:', err);
