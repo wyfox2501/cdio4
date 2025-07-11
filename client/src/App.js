@@ -32,6 +32,7 @@ import Register from "./features/auth/login & register/Register";
 import Layout_Auth from "./features/auth/layout/AuthLayout";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Unauthorized from "./components/unauthorized.jsx";
+
 function App() {
   return (
     <div className="App">

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./styleCancel.scss";
-import axios from "axios";
 
 const daysOfWeek = [
-    "Chủ Nhật", // 0
-    "Thứ Hai", // 1
-    "Thứ Ba", // 2
-    "Thứ Tư", // 3
-    "Thứ Năm", // 4
-    "Thứ Sáu", // 5
-    "Thứ Bảy", // 6
+    "Chủ Nhật",
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
 ];
 
 const hours = [
@@ -30,82 +29,40 @@ const hours = [
     "21H",
 ];
 
-axios.defaults.baseURL = "http://localhost:5000";
-axios.defaults.withCredentials = true;
-
 function ViewCalendarKham() {
     const [showCancelForm, setShowCancelForm] = useState(false);
     const [cancelData, setCancelData] = useState(null);
     const [patients, setPatients] = useState([]);
 
-    // useEffect(() => {
-    //     const fetchAppointments = async () => {
-    //         try {
-    //             const response = await axios.get("/api/doctor/view_appointment", {
-    //                 withCredentials: true,
-    //             });
-    //             console.log("Dữ liệu từ backend:", response.data);
-    //             const data = response.data.map((item) => ({
-    //                 id: item.id,
-    //                 name: item.patient_name,
-    //                 date: item.appointment_date,
-    //                 time: item.appointment_time,
-    //                 sdt: item.patient_phone,
-    //                 symptum: item.symptoms,
-    //             }));
-    //             setPatients(data);
-    //         } catch (error) {
-    //             console.error("Error fetching appointments:", error);
-    //         }
-    //     };
-    //     fetchAppointments();
-    // }, []);
-
-    // useEffect(() => {
-    //     const data = [
-    //         {
-    //             id: 1,
-    //             name: "Nguyễn Văn A",
-    //             date: "2025-07-08", // Thứ Ba
-    //             time: "9H",
-    //             sdt: "0912345678",
-    //             symptum: "Sốt cao, mệt mỏi",
-    //         },
-    //         {
-    //             id: 2,
-    //             name: "Trần Thị B",
-    //             date: "2025-07-09", // Thứ Tư
-    //             time: "10H",
-    //             sdt: "0923456789",
-    //             symptum: "Ho kéo dài",
-    //         },
-    //         {
-    //             id: 3,
-    //             name: "Lê Văn C",
-    //             date: "2025-07-10", // Thứ Năm
-    //             time: "15H",
-    //             sdt: "0934567890",
-    //             symptum: "Đau đầu",
-    //         },
-    //         {
-    //             id: 4,
-    //             name: "Phạm Văn D",
-    //             date: "2025-07-11", // Thứ Sáu
-    //             time: "8H",
-    //             sdt: "0945678901",
-    //             symptum: "Mất ngủ",
-    //         },
-    //         {
-    //             id: 5,
-    //             name: "Đặng Thị E",
-    //             date: "2025-07-12", // Thứ Bảy
-    //             time: "14H",
-    //             sdt: "0956789012",
-    //             symptum: "Chóng mặt",
-    //         },
-    //     ];
-    //     setPatients(data);
-    // }, []);
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:5000/api/doctor/view_appointment",
+                    {
+                        withCredentials: true,
+                        headers: {
+                            "Cache-Control": "no-cache",
+                        },
+                    }
+                );
+                console.log("Dữ liệu từ backend:", response.data);
+                const data = response.data.map((item) => ({
+                    id: item.id,
+                    name: item.patient_name,
+                    date: item.appointment_date,
+                    time: item.appointment_time,
+                    sdt: item.patient_phone,
+                    symptum: item.symptoms,
+                }));
+                console.log("Dữ liệu format FE:", data); // ✅ Thêm dòng này để kiểm tra dữ liệu đã format
+                setPatients(data);
+            } catch (error) {
+                console.error("Error fetching appointments:", error);
+            }
+        };
+        fetchAppointments();
+    }, []);
 
     const getWeekday = (dateStr) => {
         const date = new Date(dateStr);
@@ -175,16 +132,6 @@ function ViewCalendarKham() {
                     </span>
                 </div>
                 <table>
-                    {/* <thead>
-                        <tr>
-                            <th className="time1">Giờ</th>
-                            {daysOfWeek.map((day) => (
-                                <th key={day} className="time2">
-                                    {day}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead> */}
                     <thead>
                         <tr>
                             <th className="time1">Giờ</th>
@@ -293,8 +240,8 @@ function CancelSchedule({ data, onClose, onSuccess }) {
 
         const cancelAppointment = async () => {
             try {
-                await axios.put(
-                    `/doctor/cancel/${formData.id}`,
+                await fetch(
+                    `http://localhost:5000/doctor/cancel/${formData.id}`,
                     { reason: formData.lydo },
                     { withCredentials: true }
                 );
@@ -305,12 +252,10 @@ function CancelSchedule({ data, onClose, onSuccess }) {
                 setColor("#f03242");
             }
         };
-
         setTimeout(() => {
             cancelAppointment();
         }, 500);
     };
-
     return (
         <div className="add cancel-form">
             <p style={{ backgroundColor: color, color: "white" }}>{message}</p>
