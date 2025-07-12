@@ -38,6 +38,7 @@ function Add_calender() {
                 setDoctor(json[0]); // Lấy tên bác sĩ để hiển thị
             } catch (error) {
                 console.error("❌ Lỗi khi fetch bác sĩ:", error);
+                
             }
         };
         fetchDoctor();
@@ -97,14 +98,15 @@ function Add_calender() {
                     time_end: datetime_end,
                 }),
             });
-
+            const errorText = await response.text();
             if (!response.ok) {
-                const errorText = await response.text();
                 console.error("❌ Lỗi API:", response.status, errorText);
                 setMeseger("Lỗi khi thêm lịch");
                 setColor("#f03242");
+                alert("Schedule conflict"||errorText.message);
                 return;
             }
+            
             console.log("✅ Thêm lịch thành công");
             setMeseger("Thêm lịch thành công!");
             setColor("green");
@@ -118,6 +120,7 @@ function Add_calender() {
             console.error("❌ Lỗi fetch:", error);
             setMeseger("Lỗi khi thêm lịch");
             setColor("#f03242");
+            alert(error);
         }
     };
 

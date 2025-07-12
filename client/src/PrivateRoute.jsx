@@ -40,6 +40,15 @@ const PrivateRoute = ({ allowedRoles }) => {
  if (!allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
+  // if (allowedRoles.includes( user?.role === "doctor")) {
+  //     return "/doctor";
+  //   }
+  //   if (allowedRoles.includes( user?.role === "patient")) {
+  //     return "/";
+  //   }
+  //   if (allowedRoles.includes( user?.role === "admin")) {
+  //     return "/admin";
+  //   }
   // Nếu hợp lệ, hiển thị nội dung bên trong route (trang được phép truy cập)
   return <Outlet />;
 };
