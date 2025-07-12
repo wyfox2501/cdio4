@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HealthImg from "../../../images/healthycare.jpg";
 import "./Login_register.scss";
 Register.propTypes = {};
@@ -9,6 +9,7 @@ function Register(props) {
   const [toggle, setToggle] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
   const [avata, setAvata] = useState(null);
+  const naviga=useNavigate();
   const Specification = [
     { id: 1, name: "Nội tổng quát" },
     { id: 2, name: "Ngoại tổng quát" },
@@ -52,6 +53,7 @@ function Register(props) {
     avata: null,
     specification: "",
     experience: "",
+    education: "",
     image_Certification: null,
   });
   const handleImageChange = (event) => {
@@ -132,6 +134,7 @@ const handleChang = (event) => {
 
       const data = await response.json();
       alert("Patient registered successfully:", data);
+      naviga("/auth/login");
     } catch (error) {
       alert("Error in patient registration:", error);
     }
@@ -151,6 +154,7 @@ const handleChang = (event) => {
       formData.append("avata", dataDoctor.avata);
       formData.append("specification", dataDoctor.specification);
       formData.append("experience", dataDoctor.experience);
+      formData.append("education", dataDoctor.education);
       formData.append("image_Certification", dataDoctor.image_Certification);
 
       const response = await fetch("http://localhost:5000/api/users/doctor", {
@@ -164,6 +168,7 @@ const handleChang = (event) => {
 
       const data = await response.json();
       alert("Doctor registered successfully:", data);
+      naviga("/auth/login");
     } catch (error) {
       alert("Error in doctor registration:", error);
     }

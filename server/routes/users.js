@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const multer = require('multer');
 const healthy= require('../model/Heathy');
+const e = require('express');
 // 
 
 const storage = multer.diskStorage({
@@ -22,7 +23,7 @@ router.post('/patient', upload.single('avata'), async function(req, res, next) {
       return res.status(400).json({ message: "User already exists" });
     }
    const result = await healthy.query(
-      "INSERT INTO users (username, email, password, phone, cccd, avata,role, active, birthday, sex, address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+      "INSERT INTO users (username, email, password, phone, cccd, avata,role, active, birthdate, sex, address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
       [name, email, password, phone, cccd, avata, 'patient', "true", birthday, sex, address]
     );
      const userId = result.rows[0].user_id;
@@ -41,7 +42,7 @@ router.post('/doctor', upload.fields([
   { name: 'image_Certification', maxCount: 1 } // Chứng chỉ bác sĩ
 ]),async function(req, res, next) {
   try {
-    const { name, email, password, phone, cccd, birthday, sex, address, specification, experience } = req.body;
+    const { name, email, password, phone, cccd, birthday, sex, address, specification, experience, education } = req.body;
     const avata = req.files?.avata?.[0]?.filename; // Lấy tên file avatar
     const image_Certification = req.files?.image_Certification?.[0]?.filename; // Lấy tên file chứng chỉ
     const check = await healthy.query("SELECT * FROM users WHERE email = $1 or cccd=$2", [email, cccd]);
@@ -49,14 +50,14 @@ router.post('/doctor', upload.fields([
       return res.status(400).json({ message: "User already exists" });
     }
     const result = await healthy.query(
-      "INSERT INTO users (username, email, password, phone, cccd,birthday, sex, address, avata,role, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
+      "INSERT INTO users (username, email, password, phone, cccd,birthdate, sex, address, avata,role, active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
       [name, email, password, phone, cccd, birthday, sex, address, avata, 'doctor', "wait"]
     );
     const userId = result.rows[0].user_id;
     // Lưu thông tin bác sĩ vào bảng doctor
    await healthy.query(
-      "INSERT INTO doctor (user_id, specification, experience, image_Certification) VALUES ($1, $2, $3, $4) RETURNING *",
-      [userId, specification, experience, image_Certification]
+      "INSERT INTO doctor (user_id, specification, experience, image_Certification,education) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [userId, specification, experience, image_Certification, education]
     );
     //lưu thông tin wallet của bác sĩ
    await healthy.query(
