@@ -17,11 +17,11 @@ router.get('/view_appointment',upload.none(), async function(req, res, next) {
 });
 // Lấy lịch làm việc của bác sĩ(doctor)
 router.get('/view_work_schedule', async function(req, res, next) {
+  const doctorId = req.session.user.id; // Lấy doctorId từ session
   try {
     //  console.log("📥 GET /view_work_schedule");
     // console.log("🍪 Session:", req.session);
     // console.log("👤 Session User:", req.session?.user);
-    const doctorId = req.session.user.id; // Lấy doctorId từ session
     const result = await healthy.query("SELECT * FROM doctorschedule WHERE user_id = $1", [doctorId]);
     res.status(200).json(result.rows);
   } catch (error) {
@@ -53,7 +53,7 @@ router.get('/',async function(req, res, next) {
   }
 });
 // lấy lịch sử khám bệnh của bác sĩ 
-route.get('/history',async function(req, res, next) {
+router.get('/history',async function(req, res, next) {
   try {
     const doctorId = req.session.user.id; // Lấy doctorId từ session
     const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId, 'successfully']);

@@ -32,6 +32,7 @@ import Register from "./features/auth/login & register/Register";
 import Layout_Auth from "./features/auth/layout/AuthLayout";
 import PrivateRoute from "./PrivateRoute.jsx";
 import Unauthorized from "./components/unauthorized.jsx";
+import Home from "./components/home/home.jsx";
 
 function App() {
   return (
@@ -45,8 +46,10 @@ function App() {
         </Route>
 
         <Route path="/doctor" element={<PrivateRoute allowedRoles={"doctor"} />}>
-          <Route index element={<Layout_doctor />} />
+          {/* <Route index element={<Layout_doctor />} /> */}
           <Route path="/doctor" element={<Layout_doctor />}>
+            <Route index element={<Home />} />
+            {/* <Route path="home" element={<Home />} /> */}
             <Route path="quan-li-lich" element={<Sidebar />}>
               <Route index element={<Home_appointment />} />
               <Route path="LichKham" element={<View_appointment />} />
@@ -68,8 +71,9 @@ function App() {
         </Route>
       </Route>
         <Route path="/" element={<PrivateRoute allowedRoles={"patient"}/>}> 
-              <Route index element={<Layout_customer />} />
+              {/* <Route index element={<Layout_customer />} /> */}
               <Route path="/" element={<Layout_customer />}>
+              <Route index element={<Home />} />
                 <Route path="chon-bac-si" element={<DoctorSelect />} />
                 <Route path="datlich" element={<AppointmentLayout />}>
                       <Route index element={<DoctorDetail />} />

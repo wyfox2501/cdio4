@@ -107,6 +107,8 @@ function Header() {
         credentials: "include", // 🔥 cái này là để gửi cookie
       });
       const result = await res.json();
+      console.log("👤 User:", result);
+      
       if (res.status === 200) {
         setUser(result.user); // cập nhật state user
       } else {
@@ -129,11 +131,22 @@ function Header() {
       alert("Đăng xuất không thành công");
     }
   };
+  const handleImg = () => {
+    if (user?.role === "doctor") {
+      return "/doctor";
+    }
+    if (user?.role === "patient") {
+      return "/";
+    }
+    if (user?.role === "admin") {
+      return "/admin";
+    }
+  }
   return (
     <div>
       <div class="menu">
         <div class="left-menu">
-          <Link className="health" to="/">
+          <Link className="health" to={handleImg()}>
             <img src={Healthycare} alt="HealthCare" />
             <h4>HealthCare</h4>
           </Link>
@@ -171,10 +184,10 @@ function Header() {
           </div>
 
         <div class="right-menu">
-            <img src={Cat} alt="" />
+            <img src={`http://localhost:5000/images/${user?.avata || 'avatar.webp'}`} alt="" />
             <div class="drop-menu">
-              <a href="">Thông Tin Cá Nhân</a>
-              <a href="">Thông Tin Lịch Hẹn</a>
+              {/* <a href="">Thông Tin Cá Nhân</a>
+              <a href="">Thông Tin Lịch Hẹn</a> */}
               <a onClick={signOut}>Đăng Xuất</a>
             </div>
           </div>

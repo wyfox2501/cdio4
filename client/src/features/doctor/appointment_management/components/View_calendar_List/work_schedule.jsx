@@ -83,6 +83,8 @@ function WorkSchedule() {
                 }
 
                 const data = await res.json();
+                console.log('data',data);
+                
                 const formatted = data.map((item) => {
                     const startUTC =
                         new Date(item.datetime_start).getUTCHours() + 7;
