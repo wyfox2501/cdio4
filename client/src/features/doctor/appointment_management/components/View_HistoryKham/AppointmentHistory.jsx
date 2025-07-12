@@ -1,50 +1,54 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
 import "./appointmentHistory.scss";
 
-const testData = [
-    {
-        id: 1,
-        name: "Nguyễn Văn A",
-        date: "2025-06-24",
-        time: "10H",
-        symptom: "Sốt, ho",
-        doctor: "Nguyễn Văn B",
-        status: "done",
-    },
-    {
-        id: 2,
-        name: "Trần Thị B",
-        date: "2025-06-25",
-        time: "14H",
-        symptom: "Đau đầu",
-        doctor: "Nguyễn Văn B",
-        status: "done",
-    },
-    {
-        id: 3,
-        name: "Phạm Văn C",
-        date: "2025-06-25",
-        time: "15H",
-        symptom: "Cảm cúm",
-        doctor: "Lê Thị C",
-        status: "pending", // sẽ bị loại bỏ vì không "done"
-    },
-];
-
-function AppointmentHistory({ data = testData }) {
+function AppointmentHistory() {
+    const [data, setData] = useState([]);
     const [filterDoctor, setFilterDoctor] = useState("");
     const [filterDate, setFilterDate] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch("http://localhost:3000/doctor/history", {
+                    method: "GET",
+                    credentials: "include", // gửi cookie session
+                    cache: "no-store", // tránh lỗi 304
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    console.log("Fetched history data:", data);
+                    setData(data);
+                } else {
+                    console.error("Response is not JSON:", response);
+                    setError("Dữ liệu không hợp lệ từ server.");
+                }
+            } catch (error) {
+                console.error("Error fetching history:", error);
+                setError("Không thể tải dữ liệu lịch sử khám bệnh.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchHistory();
+    }, []);
 
     const filteredData = Array.isArray(data)
         ? data.filter((item) => {
               const matchDoctor = filterDoctor
-                  ? item.doctor
-                        ?.toLowerCase()
-                        .includes(filterDoctor.toLowerCase())
+                  ? item.doctor_name?.toLowerCase().includes(filterDoctor.toLowerCase())
                   : true;
               const matchDate = filterDate ? item.date === filterDate : true;
-              return matchDoctor && matchDate && item.status === "done";
+              return matchDoctor && matchDate && item.status === "successfully";
           })
         : [];
 
@@ -52,12 +56,6 @@ function AppointmentHistory({ data = testData }) {
         <div className="history-container">
             <h2>Lịch Sử Khám Bệnh</h2>
             <div className="filters">
-                {/* <input
-                    type="text"
-                    placeholder="Tìm theo tên bác sĩ..."
-                    value={filterDoctor}
-                    onChange={(e) => setFilterDoctor(e.target.value)}
-                /> */}
                 <input
                     type="date"
                     value={filterDate}
@@ -65,48 +63,46 @@ function AppointmentHistory({ data = testData }) {
                 />
             </div>
 
-            <table className="history-table">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên Bệnh Nhân</th>
-                        <th>Ngày</th>
-                        <th>Giờ</th>
-                        <th>Triệu Chứng</th>
-                        <th>Bác Sĩ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredData.length > 0 ? (
-                        filteredData.map((item, index) => (
-                            <tr key={item.id || index}>
-                                <td>{index + 1}</td>
-                                <td>{item.name}</td>
-                                <td>{item.date}</td>
-                                <td>{item.time}</td>
-                                <td>{item.symptom}</td>
-                                <td>{item.doctor}</td>
-                            </tr>
-                        ))
-                    ) : (
+            {loading ? (
+                <p>Đang tải dữ liệu...</p>
+            ) : error ? (
+                <p className="error">{error}</p>
+            ) : (
+                <table className="history-table">
+                    <thead>
                         <tr>
-                            <td colSpan="6" className="no-data">
-                                Không có dữ liệu phù hợp
-                            </td>
+                            <th>STT</th>
+                            <th>Tên Bệnh Nhân</th>
+                            <th>Ngày</th>
+                            <th>Giờ</th>
+                            <th>Triệu Chứng</th>
+                            <th>Bác Sĩ</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {filteredData.length > 0 ? (
+                            filteredData.map((item, index) => (
+                                <tr key={item.id || index}>
+                                    <td>{index + 1}</td>
+                                    <td>{item.patient_name}</td>
+                                    <td>{item.date}</td>
+                                    <td>{item.time}</td>
+                                    <td>{item.symptom}</td>
+                                    <td>{item.doctor_name}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="no-data">
+                                    Không có dữ liệu phù hợp
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 }
-
-AppointmentHistory.propTypes = {
-    data: PropTypes.array,
-};
-
-AppointmentHistory.defaultProps = {
-    data: [],
-};
 
 export default AppointmentHistory;
