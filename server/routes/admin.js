@@ -16,4 +16,14 @@ router.put('/approve/:id', async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// lấy tất cả người dùngh
+router.get('/users', async function(req, res, next) {
+  try {
+    const result = await healthy.query("SELECT * FROM users where active=$1", ["true"]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error in GET /users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 module.exports = router;
