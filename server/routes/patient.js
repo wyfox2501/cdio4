@@ -58,6 +58,17 @@ router.get('/', async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// lấy lịch làm việc cá nhân của bác sĩ
+router.get('/work_schedule_doctor/:id',upload.none(), async function(req, res, next) {
+  try {
+    const doctorId = req.params.id; // Lấy doctorId từ URL
+    const result = await healthy.query("SELECT * FROM doctorschedule WHERE user_id = $1", [doctorId]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error in GET /customer/work_schedule_doctor/:id:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 // cập nhập thông tin bệnh nhân
 router.put('/',upload.none(), async function(req, res, next) {
   try {
