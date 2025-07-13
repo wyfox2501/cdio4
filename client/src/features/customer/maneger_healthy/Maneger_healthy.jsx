@@ -21,8 +21,10 @@ function Manager_healthy() {
         const fetchUserProfile = async () => {
             try {
                 const response = await axios.get(
-                    'http://localhost:5000/api/patient/profile', 
-                    { withCredentials: true }
+                    'http://localhost:5000/api/patient', 
+                    { withCredentials: true,
+                        credentials: "include"
+                     }
                 );
                 
                 const userData = response.data;
@@ -81,8 +83,8 @@ function Manager_healthy() {
 
         try {
             const response = await axios.put(
-                'http://localhost:5000/api/patient/profile',
-                { height: height, weight: weight },
+                'http://localhost:5000/api/patient',
+                { height: height, weight: weight, bmi: bmi },
                 { withCredentials: true }
             );
             setSaveSuccess(response.data.msg);

@@ -28,11 +28,11 @@ function AppointmentConfirmation() {
             try {
                 // Lấy thông tin bác sĩ và bệnh nhân song song
                 const [doctorRes, patientRes] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/patient/doctors/${appointmentInfo.doctorId}`),
-                    axios.get('http://localhost:5000/api/patient/profile', { withCredentials: true })
+                    axios.get(`http://localhost:5000/api/patient/doctor/${appointmentInfo.doctorId}`),
+                    axios.get('http://localhost:5000/api/patient', { withCredentials: true, credentials: "include" })
                 ]);
-                setDoctorDetails(doctorRes.data);
-                setPatientDetails(patientRes.data);
+                setDoctorDetails(doctorRes.data[0]);
+                setPatientDetails(patientRes.data[0]);
             } catch (err) {
                 console.error("Lỗi khi tải thông tin chi tiết:", err);
                 setError("Không thể tải đầy đủ thông tin để xác nhận.");
@@ -60,7 +60,9 @@ function AppointmentConfirmation() {
             await axios.post(
                 'http://localhost:5000/api/patient/appointments',
                 finalAppointmentData,
-                { withCredentials: true }
+                { withCredentials: true,
+                    credentials: "include"
+                 }
             );
             setSuccess("Bạn đã đặt lịch hẹn thành công!");
         } catch (err) {
@@ -98,7 +100,7 @@ function AppointmentConfirmation() {
                         <section className="info-section">
                             <h3 className="section-title">Thông Tin Bác Sĩ & Lịch Khám</h3>
                             <div className="details-grid">
-                                <div><label>Bác sĩ:</label><span>{doctorDetails?.full_name}</span></div>
+                                <div><label>Bác sĩ:</label><span>{doctorDetails?.username}</span></div>
                                 <div><label>Chuyên khoa:</label><span>{doctorDetails?.specification}</span></div>
                                 <div><label>Ngày khám:</label><span>{formatDate(appointmentInfo.appointmentDate)}</span></div>
                                 <div><label>Giờ khám:</label><span>{formatTime(appointmentInfo.time)}</span></div>

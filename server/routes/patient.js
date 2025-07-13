@@ -36,12 +36,11 @@ router.get('/doctor/:id',upload.none(), async function(req, res, next) {
   }
 })
 // đặt lịch khám
-router.post('/:id',upload.none(), async function(req, res, next) {
+router.post('/appointments',upload.none(), async function(req, res, next) {
     try {
         const customer_id=req.session.user.id;
-        const doctor_id=req.params.id; // Lấy doctorId từ URL
-        const {appointment_date,time,symptoms}=req.body;
-        await healthy.query("INSERT INTO appointments (doctor_id,patient_id,appointment_date,time,symptoms) VALUES ($1,$2,$3,$4,$5)",[doctor_id,customer_id,appointment_date,time,symptoms]);
+        const {doctor_id,appointment_date,time,symptoms}=req.body;
+        await healthy.query("INSERT INTO appointments (doctor_id,patient_id,appointment_date,time,status,symptoms) VALUES ($1,$2,$3,$4,$5,$6)",[doctor_id,customer_id,appointment_date,time,'pending',symptoms]);
         res.status(201).json({ message: "Add appointment successfully" });
     } catch (error) {
         console.error("Error in POST /customer:", error);
@@ -59,4 +58,16 @@ router.get('/', async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// cập nhập thông tin bệnh nhân
+router.put('/',upload.none(), async function(req, res, next) {
+  try {
+    const {height,weight, bmi}=req.body;
+    const customerId = req.session.user.id; // Lấy customerId từ session
+    await healthy.query("UPDATE patient SET height=$1,weight=$2,bmi=$3 WHERE user_id=$4", [height,weight,bmi,customerId]);
+    res.status(200).json({ message: "Update patient successfully" });
+  } catch (error) {
+    console.error("Error in PUT /customer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 module.exports = router;
