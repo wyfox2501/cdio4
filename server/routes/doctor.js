@@ -38,7 +38,7 @@ router.get("/confirm_refuse", async function (req, res, next) {
         const doctorId = req.session.user.id;
         const result = await healthy.query(
             "SELECT * FROM appointments WHERE doctor_id = $1 and status=$2",
-            [doctorId, "confirmed"]
+            [doctorId, "pending"]
         );
         res.status(200).json(result.rows);
     } catch (error) {
