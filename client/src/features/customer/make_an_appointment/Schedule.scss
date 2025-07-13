@@ -1,132 +1,176 @@
-// src/features/customer/make_an_appointment/Schedule.scss
+// File: client/src/features/customer/make_an_appointment/Schedule.scss
 
 // Biến màu
 $primary-color: #007bff;
-$active-color: #4CAF50; // Màu xanh lá cho nút active
 $background-color: #f4f7f9;
-$sidebar-bg: #e3f2fd;
 $card-bg: #ffffff;
 $border-color: #dee2e6;
-$status-booked-color: #dc3545; // Màu đỏ cho "Đã đặt"
-$status-available-color: #28a745; // Màu xanh cho "Còn trống"
-$selected-row-bg: #e9f5ff;
+$text-color: #333;
+$error-color: #d9534f;
+$success-color: #28a745;
+$slot-bg: #f8f9fa;
+$slot-selected-bg: #007bff;
+$slot-booked-bg: #e9ecef;
+$slot-booked-text: #6c757d;
 
-// Kế thừa style chung để đồng bộ
-@import './DoctorDetail.scss'; 
-
-.schedule-container {
-  display: flex;
-  background-color: $background-color;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-
-  .sidebar {
-    background-color: $sidebar-bg;
-    .nav-button {
-      &.active, &:hover {
-        background-color: $active-color;
-        border-color: $active-color;
-        color: white;
-      }
-    }
-  }
-
-  .main-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    padding: 2rem;
-  }
-}
-
+// Thẻ chính chứa toàn bộ nội dung
 .schedule-card {
   width: 100%;
-  max-width: 1100px;
+  max-width: 800px;
+  margin: 0 auto;
   background-color: $card-bg;
   padding: 2.5rem;
   border-radius: 15px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+
+  h3 {
+    text-align: center;
+    font-size: 1.75rem;
+    color: $primary-color;
+    margin-bottom: 2rem;
+  }
 }
 
-.date-filter {
+// Vùng hiển thị địa chỉ
+.address-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  border: 1px solid #bde0fe;
+
+  .icon {
+    font-size: 1.5rem;
+    color: $primary-color;
+  }
+
+  .address-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    
+    strong {
+      color: $primary-color;
+    }
+  }
+}
+
+
+// Vùng chọn ngày
+.date-picker-container {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  font-size: 1rem;
 
   label {
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    color: $text-color;
   }
 
-  .date-display {
-    background-color: #f0f2f5;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
+  input[type="date"] {
+    padding: 0.75rem;
     border: 1px solid $border-color;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-grow: 1;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    }
   }
 }
 
-.schedule-table {
-  width: 100%;
-  
-  .table-header, .table-row {
-    display: grid;
-    grid-template-columns: 50px 1fr 1.5fr 2.5fr 1.5fr;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border-bottom: 1px solid $border-color;
-  }
+// Vùng chứa các ô thời gian
+.time-slots-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
 
-  .table-header {
-    font-weight: bold;
-    color: #555;
-    background-color: #f8f9fa;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
+// Kiểu cho từng ô thời gian
+.time-slot {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  background-color: $slot-bg;
+  color: $text-color;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 
-  .table-row {
-    transition: background-color 0.2s ease;
-    &.selected {
-      background-color: $selected-row-bg;
-      border-left: 4px solid $primary-color;
-    }
-  }
-
-  .custom-checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid $border-color;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: $primary-color;
-  }
-  
-  .table-row.selected .custom-checkbox {
+  &:hover:not(:disabled) {
+    background-color: lighten($primary-color, 35%);
     border-color: $primary-color;
   }
 
-  .col-status {
-    font-weight: 500;
-    &.status-available {
-      color: $status-available-color;
-    }
-    &.status-booked {
-      color: $status-booked-color;
+  &.selected {
+    background-color: $slot-selected-bg;
+    color: white;
+    border-color: darken($slot-selected-bg, 10%);
+    transform: scale(1.05);
+  }
+
+  &.booked {
+    background-color: $slot-booked-bg;
+    color: $slot-booked-text;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+}
+
+// Vùng nhập triệu chứng
+.symptoms-container {
+  margin-bottom: 2rem;
+
+  label {
+    display: block;
+    font-weight: 600;
+    color: $text-color;
+    margin-bottom: 0.5rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
     }
   }
 }
 
+// Phần chân trang chứa nút và thông báo
 .footer-action {
-  margin-top: 2rem;
   text-align: center;
+
+  .error-message, .success-message {
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  .error-message {
+    color: $error-color;
+  }
+  .success-message {
+    color: $success-color;
+  }
 
   .confirm-button {
     background-color: $primary-color;
@@ -137,10 +181,16 @@ $selected-row-bg: #e9f5ff;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: darken($primary-color, 10%);
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      background-color: #a0cfff;
+      cursor: not-allowed;
     }
   }
 }

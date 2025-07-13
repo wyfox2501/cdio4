@@ -1,88 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import './DoctorDetail.scss';
 
-// Import dữ liệu từ tệp chung
-import { doctorsData } from './data.js';
-
 function DoctorDetail() {
-  const { doctorId } = useParams();
+    const { doctorId } = useParams();
+    const [doctorInfo, setDoctorInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  // Tìm kiếm thông tin bác sĩ
-  let doctorInfo = null;
-  for (const deptId in doctorsData) {
-    const foundDoctor = doctorsData[deptId]?.find(doc => doc.id.toString() === doctorId);
-    if (foundDoctor) {
-      doctorInfo = foundDoctor;
-      break;
-    }
-  }
+    useEffect(() => {
+        const fetchDoctorDetail = async () => {
+            if (!doctorId) return;
+            try {
+                const response = await axios.get(`http://localhost:5000/api/patient/doctors/${doctorId}`);
+                setDoctorInfo(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError('Không thể tải thông tin bác sĩ.');
+                setLoading(false);
+                console.error(err);
+            }
+        };
 
-  if (!doctorInfo) {
+        fetchDoctorDetail();
+    }, [doctorId]);
+
+    if (loading) return <div>Đang tải...</div>;
+    if (error) return <div>{error}</div>;
+    if (!doctorInfo) return <div>Không tìm thấy thông tin bác sĩ!</div>;
+
+    // Helper để format ngày
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN');
+    };
+
     return (
-      <div style={{ textAlign: 'center', padding: '5rem', fontSize: '1.5rem' }}>
-        <h1>Không tìm thấy thông tin bác sĩ!</h1>
-      </div>
-    );
-  }
+        <div className="info-card">
+            <div className="info-header">
+                <img src={doctorInfo.avatar_url || 'https://placehold.co/150x150?text=Avatar'} alt={doctorInfo.full_name} className="doctor-avatar" />
+                <h2>Thông Tin Về Bác Sĩ</h2>
+            </div>
 
-  return (
-    <div className="info-card">
-      <div className="info-header">
-        <img src={doctorInfo.avatar} alt={doctorInfo.name} className="doctor-avatar" />
-        <h2>Thông Tin Về Bác Sĩ</h2>
-      </div>
-      
-      {/* Các trường dữ liệu đã được cập nhật để hiển thị trực tiếp */}
-      <div className="info-grid">
-        <div className="info-item">
-          <span className="label">Họ Và Tên:</span>
-          <span className="value">{doctorInfo.name}</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Ngày Sinh:</span>
-          <span className="value">{doctorInfo.dob}</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Giới Tính:</span>
-          <div className="gender-options">
-            <div className="gender-choice">
-              <span className={`check-mark ${doctorInfo.gender === 'Nam' ? 'checked' : ''}`}>V</span>
-              <span>Nam</span>
+            <div className="info-grid">
+                <div className="info-item">
+                    <span className="label">Họ Và Tên:</span>
+                    <span className="value">{doctorInfo.full_name}</span>
+                </div>
+                 <div className="info-item">
+                    <span className="label">Chuyên khoa:</span>
+                    <span className="value">{doctorInfo.specification}</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Ngày Sinh:</span>
+                    <span className="value">{formatDate(doctorInfo.birthdate)}</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Giới Tính:</span>
+                    <span className="value">{doctorInfo.genre ? 'Nam' : 'Nữ'}</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Email:</span>
+                    <span className="value">{doctorInfo.email}</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Học Vấn:</span>
+                    <span className="value">{doctorInfo.education || 'Đang cập nhật'}</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Kinh Nghiệm:</span>
+                    <span className="value">{doctorInfo.experience} năm</span>
+                </div>
+                <div className="info-item">
+                    <span className="label">Địa Chỉ làm việc:</span>
+                    <span className="value">{doctorInfo.address || 'Đang cập nhật'}</span>
+                </div>
             </div>
-            <div className="gender-choice">
-              <span className={`check-mark ${doctorInfo.gender === 'Nữ' ? 'checked' : ''}`}>V</span>
-              <span>Nữ</span>
-            </div>
-          </div>
         </div>
-        <div className="info-item">
-          <span className="label">SĐT:</span>
-          <span className="value">{doctorInfo.phone}</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Email:</span>
-          <span className="value">{doctorInfo.email}</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Học Vấn:</span>
-          <span className="value">{doctorInfo.title}</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Kinh Nghiệm:</span>
-          <span className="value">{doctorInfo.experience} năm</span>
-        </div>
-        <div className="info-item">
-          <span className="label">Địa Chỉ:</span>
-          <span className="value">{doctorInfo.address}</span>
-        </div>
-         <div className="info-item">
-            <span className="label">Giá Khám:</span>
-            <span className="value">{doctorInfo.price.toLocaleString()} VND</span>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default DoctorDetail;

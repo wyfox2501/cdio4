@@ -80,7 +80,7 @@ function App() {
                       <Route path="chi-tiet-bac-si/:doctorId" element={<DoctorDetail />}/>
                       <Route path="thong-tin-kham-benh/:doctorId" element={<BookingInfo />} />
                       <Route path="kiemtra/:doctorId" element={<Schedule />} />
-                      <Route path="xac-nhan-dat-lich/:doctorId" element={<AppointmentConfirmation />} />
+                      <Route path="xac-nhan-thong-tin" element={<AppointmentConfirmation />} />
                 </Route>
                 <Route path="tu-van" element={<Advise />} />
                 <Route path="quan-li-tai-khoan" element={<ProfileCustomer />} />

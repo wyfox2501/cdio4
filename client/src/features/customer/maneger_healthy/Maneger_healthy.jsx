@@ -1,25 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import './style.scss';
+import axios from 'axios';
+import './style.scss'; // Đảm bảo bạn đã import file SCSS
 
-function Home(props) {
+function Manager_healthy() {
+    // --- State cho chức năng tính BMI ---
     const [weight, setWeight] = useState("");
     const [height, setHeight] = useState("");
     const [bmi, setBMI] = useState(null);
     const [status, setStatus] = useState("");
-    const [fatPercentage, setFatPercentage] = useState(null);
     const [idealWeight, setIdealWeight] = useState(null);
 
+    // --- State cho việc tải và lưu dữ liệu ---
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState('');
+
+    // useEffect để gọi API lấy thông tin của người dùng
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await axios.get(
+                    'http://localhost:5000/api/patient/profile', 
+                    { withCredentials: true }
+                );
+                
+                const userData = response.data;
+                if (userData.height) setHeight(userData.height);
+                if (userData.weight) setWeight(userData.weight);
+
+            } catch (err) {
+                console.error("Lỗi khi tải thông tin người dùng:", err);
+                setError("Không thể tải thông tin của bạn. Vui lòng đăng nhập lại.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserProfile();
+    }, []);
+
+    // --- Logic tính BMI ---
     const calculateBMI = () => {
-        const h = parseFloat(height) / 100; // Chuyển cm thành m
+        const h_in_meter = parseFloat(height) / 100; 
         const w = parseFloat(weight);
 
-        if (!h || !w || h <= 0 || w <= 0) {
-            alert("Vui lòng nhập chiều cao và cân nặng hợp lệ!");
+        if (!h_in_meter || !w || h_in_meter <= 0 || w <= 0) {
+            setError("Vui lòng nhập chiều cao và cân nặng hợp lệ!");
             return;
         }
+        setError(null);
 
-        const bmiValue = (w / (h * h)).toFixed(1);
+        const bmiValue = parseFloat((w / (h_in_meter * h_in_meter)).toFixed(1));
         setBMI(bmiValue);
 
         let bmiStatus = "";
@@ -29,107 +61,121 @@ function Home(props) {
         else if (bmiValue < 35) bmiStatus = "Béo Phì Cấp 1";
         else if (bmiValue < 40) bmiStatus = "Béo Phì Cấp 2";
         else bmiStatus = "Béo Phì Cấp 3";
-
         setStatus(bmiStatus);
 
-        const idealW = (22 * h * h).toFixed(1);
+        const idealW = (22 * h_in_meter * h_in_meter).toFixed(1);
         setIdealWeight(idealW);
-
-        const fatPercent = (((w - idealW) / idealW) * 100).toFixed(1);
-        setFatPercentage(fatPercent);
     };
-    const [doctors, setDoctors] = useState([]);
-    useEffect(() => {
-        const featch=async()=>{
-            try {
-                const rep=await fetch('http://localhost:5000/api/patient/view_doctor', {
-                    method: 'GET',
-                    credentials: 'include'
-                })
-                const result=await rep.json();
-                setDoctors(result);
-            } catch (error) {
-                alert(error);
-            }
+    
+    // --- Logic lưu thay đổi ---
+    const handleSaveChanges = async () => {
+        setError(null);
+        setSaveSuccess('');
+        setIsSaving(true);
+
+        if (!height || !weight || parseFloat(height) <= 0 || parseFloat(weight) <= 0) {
+            setError("Chiều cao và cân nặng không hợp lệ để lưu.");
+            setIsSaving(false);
+            return;
         }
-        featch();
-    }, []);
+
+        try {
+            const response = await axios.put(
+                'http://localhost:5000/api/patient/profile',
+                { height: height, weight: weight },
+                { withCredentials: true }
+            );
+            setSaveSuccess(response.data.msg);
+        } catch (err) {
+            console.error("Lỗi khi lưu thông tin:", err);
+            setError(err.response?.data?.msg || "Đã xảy ra lỗi khi lưu.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    if (loading) {
+        return <div className="health-manager-container">Đang tải dữ liệu...</div>
+    }
+
+    const bmiCategories = [
+        { name: "Cân Nặng Thấp", range: "Dưới 18.5" },
+        { name: "Bình Thường", range: "18.5 - 24.9" },
+        { name: "Thừa Cân", range: "25 - 29.9" },
+        { name: "Béo Phì Cấp 1", range: "30 - 34.9" },
+        { name: "Béo Phì Cấp 2", range: "35 - 39.9" },
+        { name: "Béo Phì Cấp 3", range: "Trên 40" },
+    ];
+
     return (
-        <div className="tong">
-            <div className="bentrai">
-                <h2>Nhập Thông Tin Cá Nhân</h2>
-                <div className='thongtin'>
-                    <div className='benchu'>
-                        <p className='p1'>Chiều Cao</p>
-                        <p className='p2'>Cân Nặng</p>
-                        <p>Tuổi</p>
-                    </div>
-                    <div className='bennhap'>
+        <div className="health-manager-container">
+            <div className="bmi-calculator">
+                {/* Cột bên trái: Form nhập liệu */}
+                <div className="calculator-form">
+                    <h2>Quản lý chỉ số sức khỏe</h2>
+                    <div className="input-group">
+                        <label htmlFor="height">Chiều Cao (cm)</label>
                         <input
+                            id="height"
                             type="number"
                             placeholder="Nhập Chiều Cao..."
                             value={height}
                             onChange={(e) => setHeight(e.target.value)}
                         />
+                    </div>
+                    <div className="input-group">
+                        <label htmlFor="weight">Cân Nặng (kg)</label>
                         <input
+                            id="weight"
                             type="number"
                             placeholder="Nhập Cân Nặng..."
                             value={weight}
                             onChange={(e) => setWeight(e.target.value)}
                         />
-                        <input type="number" placeholder="Nhập Tuổi..." />
                     </div>
-                </div>
-                <h2>Chọn Giới Tính</h2>
-                <div className="gioitinh">
-                    <label>
-                        <input type="radio" name="gender" value="male" />
-                        Nam
-                    </label>
-                    <label>
-                        <input type="radio" name="gender" value="female" />
-                        Nữ
-                    </label>
+                    <div className="button-group">
+                        <button className="calculate-btn" onClick={calculateBMI}>Tính BMI</button>
+                        <button className="save-btn" onClick={handleSaveChanges} disabled={isSaving}>
+                            {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                        </button>
+                    </div>
+                    {error && <p className="message error">{error}</p>}
+                    {saveSuccess && <p className="message success">{saveSuccess}</p>}
                 </div>
 
-                <button onClick={calculateBMI}>Tính BMI</button>
-            </div>
-            <div className="benphai">
-                <div className='bentren'>
-                    <h3>BMI: <br /> <br />{bmi}</h3>
-                    <h3>Trọng Lượng Lý Tưởng:  <br /> <br />{idealWeight} kg</h3>
-                    <h3>Mập: <br />  <br />{fatPercentage}%</h3>
-                </div>
-
-                <div className='benduoi'>
-                    <h1>Bảng BMI</h1>
-                    <div className='chiso'>
-                        <ul className='chu'>
-                            <li>Cân Nặng Thấp</li>
-                            <li>Bình Thường</li>
-                            <li>Thừa Cân</li>
-                            <li>Tiền Béo Phì</li>
-                            <li>Béo Phì Cấp 1</li>
-                            <li>Béo Phì Cấp 2</li>
-                            <li>Béo Phì Cấp 3</li>
-                        </ul>
-                        <ul className='so'>
-                            <li>Dưới 18.5</li>
-                            <li>18.5 - 24.9</li>
-                            <li>Trên 25</li>
-                            <li>25 - 29</li>
-                            <li>30 -35</li>
-                            <li>35 - 40</li>
-                            <li>Trên 40</li>
-                        </ul>
+                {/* Cột bên phải: Hiển thị kết quả */}
+                <div className="results-display">
+                    <div className="results-grid">
+                        <div className="result-card">
+                            <h4>Chỉ số BMI</h4>
+                            <p>{bmi || 'N/A'}</p>
+                        </div>
+                        <div className="result-card">
+                            <h4>Cân nặng lý tưởng</h4>
+                            <p>{idealWeight || 'N/A'}<span className="unit">kg</span></p>
+                        </div>
+                        <div className="result-card">
+                            <h4>Trạng thái</h4>
+                            <p style={{fontSize: '1.5rem'}}>{status || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <div className="bmi-table">
+                        <h3>Bảng phân loại BMI (WHO)</h3>
+                        <table>
+                            <tbody>
+                                {bmiCategories.map(cat => (
+                                    <tr key={cat.name} className={status === cat.name ? 'highlight' : ''}>
+                                        <td>{cat.name}</td>
+                                        <td>{cat.range}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-
-
-        
         </div>
     );
 }
 
-export default Home;
+export default Manager_healthy;
