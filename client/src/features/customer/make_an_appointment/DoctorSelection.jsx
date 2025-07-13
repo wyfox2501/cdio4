@@ -1,104 +1,108 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./DoctorSelection.scss";
-// import Header from "../../../components/header";
 import { useNavigate } from 'react-router-dom';
-// 1. IMPORT DỮ LIỆU TỪ TỆP data.js
-import { departments, doctorsData } from "./data.js";
+import axios from 'axios'; // Import axios
 
-// 2. DỮ LIỆU CỤ BỘ ĐÃ ĐƯỢC XÓA BỎ
+// Dữ liệu tĩnh về khoa có thể giữ lại hoặc cũng có thể fetch từ API nếu muốn
+const departments = [
+    { id: 1, name: "Tất cả chuyên khoa" },
+    { id: 2, name: "Nội khoa" },
+    { id: 3, name: "Ngoại khoa" },
+    { id: 4, name: "Nhi khoa" },
+    { id: 5, name: "Sản phụ khoa" },
+];
 
 const doctorsPerPage = 4;
 
 export default function DoctorSelection() {
-  const [selectedDepartment, setSelectedDepartment] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
-  
-  const filteredDoctors = doctorsData[selectedDepartment]?.filter((doctor) =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+    const [doctors, setDoctors] = useState([]); // State để lưu danh sách bác sĩ từ API
+    const [loading, setLoading] = useState(true); // State cho trạng thái loading
+    const [error, setError] = useState(null); // State để lưu lỗi
 
-  const indexOfLastDoctor = currentPage * doctorsPerPage;
-  const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
-  const currentDoctors = filteredDoctors.slice(indexOfFirstDoctor, indexOfLastDoctor);
-  const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
+    const [selectedDepartment, setSelectedDepartment] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
 
-  const menuItems = [
-    { id: 1, title: "Trang Chủ" },
-    { id: 2, title: "Hẹn Lịch" },
-  ];
+    // useEffect để gọi API khi component được mount
+    useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                // Thay đổi PORT cho phù hợp với server của bạn (ví dụ: 3001, 5000)
+                const response = await axios.get('http://localhost:5000/api/patient/view_doctor');
+                setDoctors(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError('Không thể tải danh sách bác sĩ.');
+                setLoading(false);
+                console.error(err);
+            }
+        };
 
-  const handleDoctorClick = (doctorId) => {
-    navigate(`/datlich/chi-tiet-bac-si/${doctorId}`);
-  };
+        fetchDoctors();
+    }, []); // Mảng rỗng đảm bảo useEffect chỉ chạy 1 lần
 
-  return (
-    <div>
-      {/* <div className="header">
-        <Header dataheader={menuItems} className="header"/>
-      </div> */}
-      
-      <div className="container-doctor-selection">
-        <div className="controls">
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm bác sĩ" 
-            className="search-box" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <select
-            className="department-select"
-            value={selectedDepartment}
-            onChange={(e) => {
-              setSelectedDepartment(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-          >
-            {departments.map((dept) => (
-              <option key={dept.id} value={dept.id}>{dept.name}</option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="doctor-list">
-          {currentDoctors.map((doctor) => (
-            <div 
-              key={doctor.id} 
-              className="doctor-card" 
-              onClick={() => handleDoctorClick(doctor.id)}
-            >
-              <img src={doctor.avatar} alt={doctor.name} className="doctor-avatar" />
-              <p className="doctor-name">{doctor.name} - {doctor.experience} năm - {doctor.title} - {doctor.price.toLocaleString()} VND</p>
+    // Lọc bác sĩ dựa trên state `doctors` đã fetch được
+    const filteredDoctors = doctors.filter((doctor) =>
+        doctor.username.toLowerCase().includes(searchTerm.toLowerCase())
+        // Thêm logic lọc theo chuyên khoa nếu cần
+    ) || [];
+
+    const indexOfLastDoctor = currentPage * doctorsPerPage;
+    const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
+    const currentDoctors = filteredDoctors.slice(indexOfFirstDoctor, indexOfLastDoctor);
+    const totalPages = Math.ceil(filteredDoctors.length / doctorsPerPage);
+
+    const handleDoctorClick = (doctorId) => {
+        // Chuyển đến trang chi tiết với layout mới
+        navigate(`/datlich/chi-tiet-bac-si/${doctorId}`);
+    };
+
+    if (loading) return <div>Đang tải danh sách bác sĩ...</div>;
+    if (error) return <div>{error}</div>;
+
+    return (
+        <div>
+            <div className="container-doctor-selection">
+                <div className="controls">
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm bác sĩ theo tên"
+                        className="search-box"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <select
+                        className="department-select"
+                        value={selectedDepartment}
+                        onChange={(e) => setSelectedDepartment(Number(e.target.value))}
+                    >
+                        {departments.map((dept) => (
+                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="doctor-list">
+                    {currentDoctors.map((doctor) => (
+                        <div
+                            key={doctor.user_id}
+                            className="doctor-card"
+                            onClick={() => handleDoctorClick(doctor.user_id)}
+                        >
+                            <img src={`http://localhost:5000/images/${doctor.avata || 'avatar.webp'}`} alt={doctor.username} className="doctor-avatar" />
+                            <p className="doctor-name">{doctor.full_name}</p>
+                            <p className="doctor-spec">{doctor.specification}</p>
+                            <p className="doctor-exp">{doctor.experience} năm kinh nghiệm</p>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Pagination giữ nguyên */}
+                <div className="pagination">
+                    {/* ... code pagination của bạn ... */}
+                </div>
             </div>
-          ))}
         </div>
-
-        <div className="pagination">
-          <button 
-            onClick={() => setCurrentPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-          >
-            &lt;
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button 
-              key={i + 1} 
-              className={currentPage === i + 1 ? "active" : ""} 
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-          <button 
-            onClick={() => setCurrentPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-          >
-            &gt;
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }

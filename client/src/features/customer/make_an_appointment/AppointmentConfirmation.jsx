@@ -1,96 +1,133 @@
-import React from 'react';
-// 1. THÊM CÁC HOOK CẦN THIẾT
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './AppointmentConfirmation.scss';
-import Doctorimages from "../../../images/avatardoctor.png";
-
-// --- DỮ LIỆU BÁC SĨ ĐỂ TRA CỨU ---
-const doctorsData = {
-    1: [
-        { id: 1, name: "Nguyễn Văn An", experience: 15, title: "Bác sĩ chuyên khoa II", price: 250000, avatar: Doctorimages, dob: '10/10/1978', gender: 'Nam', phone: '0905111222', email: 'an.nguyen@clinic.com', address: '123 Hùng Vương, Hải Châu, Đà Nẵng' },
-        { id: 2, name: "Trần Thị Minh Hằng", experience: 10, title: "Thạc sĩ Y khoa", price: 300000, avatar: Doctorimages, dob: '12/02/1992', gender: 'Nữ', phone: '0398886699', email: 'minhhong1992@clinic.com', address: '26 Hải Phòng, Hải Châu, Đà Nẵng' },
-        // ... Thêm dữ liệu đầy đủ cho các bác sĩ khác ở đây
-    ],
-    // ... các khoa khác
-};
 
 function AppointmentConfirmation() {
-  // 2. LẤY ID BÁC SĨ TỪ URL
-  const { doctorId } = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
+    
+    // Lấy thông tin lịch hẹn được truyền từ trang trước
+    const { appointmentInfo } = location.state || {};
 
-  // Tìm kiếm thông tin bác sĩ
-  let doctorInfo = null;
-  for (const deptId in doctorsData) {
-    const foundDoctor = doctorsData[deptId]?.find(doc => doc.id.toString() === doctorId);
-    if (foundDoctor) {
-      doctorInfo = foundDoctor;
-      break;
-    }
-  }
+    const [doctorDetails, setDoctorDetails] = useState(null);
+    const [patientDetails, setPatientDetails] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
-  // Dữ liệu bệnh nhân và lịch hẹn (hiện tại đang là dữ liệu tĩnh)
-  const patientInfo = {
-    name: 'Thái Đại Huấn',
-    age: '20',
-    dob: '12/02/2004',
-    gender: 'Nam',
-    address: '118 Lê Duẩn, Hải Châu, ĐN',
-    phone: '0842132259',
-    symptoms: 'đau răng, mệt, đau nửa đầu',
-  };
-  const appointmentDetails = {
-    date: '23/01/2025',
-    time: '14:00-16:00',
-  };
+    useEffect(() => {
+        // Chuyển về trang chọn bác sĩ nếu không có thông tin lịch hẹn
+        if (!appointmentInfo) {
+            navigate('/chon-bac-si');
+            return;
+        }
 
-  // Nếu không tìm thấy bác sĩ, hiển thị thông báo
-  if (!doctorInfo) {
-    return <div><h1>Lỗi: Không tìm thấy thông tin bác sĩ!</h1></div>;
-  }
+        const fetchDetails = async () => {
+            try {
+                // Lấy thông tin bác sĩ và bệnh nhân song song
+                const [doctorRes, patientRes] = await Promise.all([
+                    axios.get(`http://localhost:5000/api/patient/doctors/${appointmentInfo.doctorId}`),
+                    axios.get('http://localhost:5000/api/patient/profile', { withCredentials: true })
+                ]);
+                setDoctorDetails(doctorRes.data);
+                setPatientDetails(patientRes.data);
+            } catch (err) {
+                console.error("Lỗi khi tải thông tin chi tiết:", err);
+                setError("Không thể tải đầy đủ thông tin để xác nhận.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-  return (
-    // 3. XÓA BỎ SIDEBAR VÀ DIV BAO NGOÀI, CHỈ GIỮ LẠI NỘI DUNG CHÍNH
-    <div className="confirmation-card">
-      <header className="card-header">
-        <h2><span role="img" aria-label="pin">📌</span> Thông Tin Lịch Hẹn</h2>
-      </header>
+        fetchDetails();
+    }, [appointmentInfo, navigate]);
 
-      {/* Thông tin bệnh nhân */}
-      <section className="info-section">
-        <h3 className="section-title">*Thông Tin Bệnh Nhân</h3>
-        <div className="info-grid">
-          <div className="info-item"><label>Họ Và Tên:</label><div className="value">{patientInfo.name}</div></div>
-          <div className="info-item"><label>Tuổi:</label><div className="value">{patientInfo.age}</div></div>
-          <div className="info-item"><label>Ngày Sinh:</label><div className="value">{patientInfo.dob}</div></div>
-          <div className="info-item"><label>Giới Tính:</label><div className="value">{patientInfo.gender}</div></div>
-          <div className="info-item full-width"><label>Địa Chỉ:</label><div className="value">{patientInfo.address}</div></div>
-          <div className="info-item"><label>SĐT:</label><div className="value">{patientInfo.phone}</div></div>
-          <div className="info-item full-width"><label>Triệu Chứng:</label><div className="value">{patientInfo.symptoms}</div></div>
-          <div className="info-item"><label>Ngày Khám:</label><div className="value">{appointmentDetails.date}</div></div>
-          <div className="info-item"><label>Giờ:</label><div className="value">{appointmentDetails.time}</div></div>
+    const handleFinalConfirm = async () => {
+        setIsSubmitting(true);
+        setError('');
+        setSuccess('');
+
+        const finalAppointmentData = {
+            doctor_id: appointmentInfo.doctorId,
+            appointment_date: appointmentInfo.appointmentDate,
+            time: appointmentInfo.time,
+            symptoms: appointmentInfo.symptoms
+        };
+
+        try {
+            await axios.post(
+                'http://localhost:5000/api/patient/appointments',
+                finalAppointmentData,
+                { withCredentials: true }
+            );
+            setSuccess("Bạn đã đặt lịch hẹn thành công!");
+        } catch (err) {
+            setError(err.response?.data?.msg || "Đã xảy ra lỗi khi xác nhận lịch hẹn.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('vi-VN');
+    const formatTime = (timeString) => timeString.substring(0, 5);
+
+    if (isLoading) return <div className="confirmation-container loading">Đang tổng hợp thông tin...</div>;
+    if (error && !success) return <div className="confirmation-container error">{error}</div>;
+
+    return (
+        <div className="confirmation-container">
+            <div className="confirmation-card">
+                <header className="card-header">
+                    <h2>Kiểm Tra Lại Thông Tin Lịch Hẹn</h2>
+                    <p>Vui lòng xác nhận các thông tin dưới đây là chính xác trước khi đặt lịch.</p>
+                </header>
+
+                {/* Chỉ hiển thị form khi chưa đặt lịch thành công */}
+                {!success && (
+                    <>
+                        <section className="info-section">
+                            <h3 className="section-title">Thông Tin Bệnh Nhân</h3>
+                            <div className="details-grid">
+                                <div><label>Họ và tên:</label><span>{patientDetails?.username}</span></div>
+                                <div><label>Email:</label><span>{patientDetails?.email}</span></div>
+                            </div>
+                        </section>
+
+                        <section className="info-section">
+                            <h3 className="section-title">Thông Tin Bác Sĩ & Lịch Khám</h3>
+                            <div className="details-grid">
+                                <div><label>Bác sĩ:</label><span>{doctorDetails?.full_name}</span></div>
+                                <div><label>Chuyên khoa:</label><span>{doctorDetails?.specification}</span></div>
+                                <div><label>Ngày khám:</label><span>{formatDate(appointmentInfo.appointmentDate)}</span></div>
+                                <div><label>Giờ khám:</label><span>{formatTime(appointmentInfo.time)}</span></div>
+                                <div className="full-width"><label>Địa chỉ:</label><span>{appointmentInfo.clinicAddress}</span></div>
+                                <div className="full-width"><label>Triệu chứng:</label><span>{appointmentInfo.symptoms || 'Không có'}</span></div>
+                            </div>
+                        </section>
+                        
+                        <footer className="card-footer">
+                            {error && <p className="error-message">{error}</p>}
+                            <button onClick={handleFinalConfirm} className="final-confirm-button" disabled={isSubmitting}>
+                                {isSubmitting ? 'Đang xử lý...' : 'Xác Nhận Đặt Lịch'}
+                            </button>
+                        </footer>
+                    </>
+                )}
+
+                {/* Chỉ hiển thị khi đã đặt lịch thành công */}
+                {success && (
+                    <div className="success-view">
+                        <div className="success-icon">✓</div>
+                        <h3>{success}</h3>
+                        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+                        <button onClick={() => navigate('/')} className="home-button">Về Trang Chủ</button>
+                    </div>
+                )}
+            </div>
         </div>
-      </section>
-
-      {/* Thông tin bác sĩ (lấy tự động) */}
-      <section className="info-section">
-        <h3 className="section-title">*Thông Tin Bác Sĩ</h3>
-        <div className="info-grid">
-          <div className="info-item"><label>Bác Sĩ Khám:</label><div className="value">{doctorInfo.name}</div></div>
-          <div className="info-item"><label>Ngày Sinh:</label><div className="value">{doctorInfo.dob}</div></div>
-          <div className="info-item"><label>Giới Tính:</label><div className="value">{doctorInfo.gender}</div></div>
-          <div className="info-item full-width"><label>Địa Chỉ:</label><div className="value">{doctorInfo.address}</div></div>
-          <div className="info-item"><label>SĐT:</label><div className="value">{doctorInfo.phone}</div></div>
-          <div className="info-item"><label>Thời gian:</label><div className="value">{appointmentDetails.time}</div></div>
-        </div>
-      </section>
-
-      <footer className="card-footer">
-        <button className="confirm-button" onClick={() => alert('Xác nhận đặt lịch thành công!')}>
-          Xác Nhận Đặt Lịch
-        </button>
-      </footer>
-    </div>
-  );
+    );
 }
 
 export default AppointmentConfirmation;

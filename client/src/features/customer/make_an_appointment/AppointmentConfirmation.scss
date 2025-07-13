@@ -1,128 +1,192 @@
-// Biến màu
+// File: client/src/features/customer/make_an_appointment/AppointmentConfirmation.scss
+
+// --- Biến màu và font chữ ---
 $primary-color: #007bff;
-$active-color: #4CAF50;
-$background-color: #f4f7f9;
-$sidebar-bg: #e3f2fd;
-$card-bg: #ffffff;
-$value-bg: #e9ecef;
-$border-color: #dee2e6;
+$success-color: #28a745;
+$background-color: #f7f9fc;
+$card-bg-color: #ffffff;
 $text-color: #333;
-$title-color: #0056b3;
+$label-color: #6c757d;
+$border-color: #e9ecef;
+$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-// Kế thừa style chung để đồng bộ
-@import './DoctorDetail.scss'; 
-
+// --- Container chính ---
 .confirmation-container {
-  display: flex;
-  background-color: $background-color;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-
-  .sidebar {
-    background-color: $sidebar-bg;
-    .nav-button {
-      &.active, &:hover {
-        background-color: $active-color;
-        border-color: $active-color;
-        color: white;
-      }
-    }
-  }
-
-  .main-content {
+    background-color: $background-color;
+    min-height: 100%;
+    padding: 2rem;
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    padding: 2rem;
-  }
-}
+    align-items: flex-start;
+    font-family: $font-family;
 
-.confirmation-card {
-  width: 100%;
-  max-width: 950px;
-  background-color: $card-bg;
-  padding: 2.5rem;
-  border-radius: 15px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  text-align: center;
-  margin-bottom: 2rem;
-  h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: $primary-color;
-    span {
-      margin-right: 0.75rem;
+    &.loading, &.error {
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: $label-color;
     }
-  }
 }
 
+// --- Thẻ chứa nội dung ---
+.confirmation-card {
+    max-width: 750px;
+    width: 100%;
+    background: $card-bg-color;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+// --- Phần đầu thẻ ---
+.card-header {
+    background-color: $primary-color;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+
+    h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+}
+
+// --- Các khu vực thông tin ---
 .info-section {
-  margin-bottom: 2.5rem;
-  
-  &:last-of-type {
-    margin-bottom: 0;
-  }
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid $border-color;
 
-  .section-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: $title-color;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e0e0e0;
-  }
+    &:last-of-type {
+        border-bottom: none;
+    }
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.2rem 2rem;
+.section-title {
+    font-size: 1.25rem;
+    color: $text-color;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid $primary-color;
+    display: inline-block;
+}
 
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    
-    &.full-width {
-      grid-column: 1 / -1;
+// --- Lưới hiển thị chi tiết ---
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem 2rem;
+
+    div {
+        display: flex;
+        flex-direction: column;
     }
 
     label {
-      font-weight: 500;
-      color: #555;
-      margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: $label-color;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+    }
+
+    span {
+        font-size: 1.05rem;
+        font-weight: 500;
+        color: $text-color;
     }
     
-    .value {
-      background-color: $value-bg;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      color: $text-color;
+    .full-width {
+        grid-column: 1 / -1;
     }
-  }
 }
 
+// --- Phần chân thẻ chứa nút ---
 .card-footer {
-  margin-top: 2.5rem;
-  text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    text-align: center;
 
-  .confirm-button {
-    background-color: $primary-color;
-    color: white;
-    padding: 0.8rem 3rem;
-    border: none;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: darken($primary-color, 10%);
+    .error-message {
+        color: #d9534f;
+        margin-bottom: 1rem;
+        font-weight: 500;
     }
-  }
+
+    .final-confirm-button {
+        background-color: $success-color;
+        color: white;
+        padding: 0.9rem 3rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba($success-color, 0.3);
+
+        &:hover:not(:disabled) {
+            background-color: darken($success-color, 10%);
+            box-shadow: 0 6px 20px rgba($success-color, 0.4);
+            transform: translateY(-2px);
+        }
+
+        &:disabled {
+            background-color: lighten($success-color, 20%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    }
+}
+
+// --- Giao diện khi đặt lịch thành công ---
+.success-view {
+    padding: 4rem 2rem;
+    text-align: center;
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: lighten($success-color, 45%);
+        color: $success-color;
+        font-size: 3.5rem;
+        font-weight: bold;
+        line-height: 80px;
+        margin: 0 auto 1.5rem;
+    }
+
+    h3 {
+        font-size: 2rem;
+        color: $text-color;
+        margin-bottom: 0.75rem;
+    }
+
+    p {
+        font-size: 1.1rem;
+        color: $label-color;
+        margin-bottom: 2rem;
+    }
+
+    .home-button {
+        background-color: $primary-color;
+        color: white;
+        padding: 0.8rem 2.5rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: darken($primary-color, 10%);
+        }
+    }
 }
