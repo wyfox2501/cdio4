@@ -1,8 +1,11 @@
 .admin-layout {
-  display: flex;
+  // display: flex;
   height: 100vh;
 }
-
+header{
+  width: 100vw;
+  display: inline;
+}
 .sidebar {
   width: 220px;
   background-color: #f5f5f5;

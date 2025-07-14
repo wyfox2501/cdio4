@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const healthy= require('../model/Heathy');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -25,4 +26,24 @@ router.post('/change_password', async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// lấy thông tin cá nhân
+router.get('/profile/:id', async function(req, res, next) {
+  try {
+    // const userId = req.session.user.id; // Lấy userId từ session
+    const userId = req.params.id;
+    const result = await healthy.query("SELECT * FROM users WHERE user_id = $1", [userId]);
+    const user=result.rows[0];
+    let detailResult = {};
+    if(user.role==='doctor'){
+      detailResult = await healthy.query("SELECT * FROM doctor WHERE user_id = $1", [userId]);
+    }else{
+      detailResult = await healthy.query("SELECT * FROM patient WHERE user_id = $1", [userId]);
+    }
+    const detailInfo = detailResult.rows[0] || {};
+    res.status(200).json({user, detail: detailInfo});
+  } catch (error) {
+    console.error("Error in GET /profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 module.exports = router;

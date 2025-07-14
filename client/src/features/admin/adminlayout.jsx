@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import './adminlayout.scss'; // nếu bạn có CSS riêng
+import Header from '../../components/header/index';
 
 function AdminLayout() {
   const location = useLocation();
@@ -8,7 +9,10 @@ function AdminLayout() {
 
   return (
     <div className="admin-layout">
-      <div className="sidebar">
+    <header>
+    <Header />
+    </header>
+      {/* <div className="sidebar">
         <h2>Administrator</h2>
         <ul>
           <li className={currentPath.includes('quanlyquyen') ? 'active' : ''}>
@@ -19,7 +23,7 @@ function AdminLayout() {
             <Link to="/admin/account_manager">👥Account Manager</Link>
           </li>
         </ul>
-      </div>
+      </div> */}
 
       <div className="main">
         <Outlet />

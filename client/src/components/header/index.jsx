@@ -79,7 +79,7 @@ const adminDataHeader = [
   },
   {
     id: 2,
-    title: "duyệt lịch khám",
+    title: "báo cáo & thống kê",
     url: "/admin/duyet-lich-kham",
   },
   {
@@ -89,7 +89,7 @@ const adminDataHeader = [
   },
   {
     id: 4,
-    title: "Quản Trị Viên",
+    title: "Duyệt bác sĩ",
     url: "/admin/role-manager",
   },
 ];

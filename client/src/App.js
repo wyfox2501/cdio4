@@ -64,8 +64,9 @@ function App() {
           </Route>
         </Route>
         <Route path="/admin" element={<PrivateRoute allowedRoles={'admin'} />}>
-          <Route index element={<Layout_admin/>}/>
+          {/* <Route index element={<Layout_admin/>}/> */}
           <Route path="/admin" element={<Layout_admin />}>
+            <Route index element={<Home />} />
             <Route path="role-manager" element={<Inadmin />} />
             <Route path="account_manager" element={<UserAdmin />} />
         </Route>

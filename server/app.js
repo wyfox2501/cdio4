@@ -62,7 +62,7 @@ app.use(session({
 }));
 
 
-app.use('/', indexRouter);
+app.use('/api/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/doctor', doctorRouter);
 app.use('/api/patient', patientRouter);
