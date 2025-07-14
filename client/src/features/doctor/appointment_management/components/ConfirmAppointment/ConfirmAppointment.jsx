@@ -1,132 +1,169 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./confirmAppointment.scss";
 
-const testAppointments = [
-    {
-        id: 1,
-        name: "Nguyễn Văn A",
-        date: "2025-06-25",
-        time: "9H",
-        doctor: "Nguyễn Văn B",
-        symptom: "Sốt cao",
-        status: "pending",
-    },
-    {
-        id: 2,
-        name: "Lê Thị C",
-        date: "2025-06-25",
-        time: "10H",
-        doctor: "Nguyễn Văn B",
-        symptom: "Đau đầu",
-        status: "done",
-    },
-    {
-        id: 3,
-        name: "Trần Văn D",
-        date: "2025-06-26",
-        time: "14H",
-        doctor: "Lê Thị C",
-        symptom: "Mệt mỏi",
-        status: "pending",
-    },
-];
-
 function ConfirmAppointment() {
-    const [appointments, setAppointments] = useState(testAppointments);
-    const [filterDoctor, setFilterDoctor] = useState("");
-    const [filterDate, setFilterDate] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [filterDoctor, setFilterDoctor] = useState("");
+  const [filterDate, setFilterDate] = useState("");
 
-    const handleConfirm = (id) => {
-        const updated = appointments.map((item) =>
-            item.id === id ? { ...item, status: "done" } : item
+  // 🔹 Gọi API để lấy danh sách lịch hẹn từ backend
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/doctor/confirm_refuse",
+          {
+            credentials: "include", // cần nếu dùng session
+          }
         );
-        setAppointments(updated);
+        if (!res.ok) {
+          console.warn("⚠️ Không lấy được lịch hẹn:", res.status);
+          return;
+        }
+        const data = await res.json();
+        setAppointments(data); // cập nhật danh sách lịch hẹn
+      } catch (err) {
+        console.error("❌ Lỗi khi lấy lịch hẹn:", err);
+      }
     };
+    fetchAppointments();
+  }, []);
 
-    const handleCancel = (id) => {
-        const updated = appointments.map((item) =>
-            item.id === id ? { ...item, status: "canceled" } : item
-        );
-        setAppointments(updated);
-    };
+  // 🔹 Chốt lịch
+  const handleConfirm = async (id) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/doctor/confirm/${id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        console.warn("❌ Lỗi khi chốt lịch:", res.status);
+        return;
+      }
+      alert("Chốt lịch hẹn thành công");
+      // await fetchAppointments(); // cập nhật lại danh sách sau khi chốt
+      window.location.reload();
+    } catch (err) {
+      console.error("❌ Lỗi khi gọi API chốt lịch:", err);
+    }
+  };
 
-    const filtered = appointments.filter((item) => {
-        const matchDoctor = filterDoctor
-            ? item.doctor.toLowerCase().includes(filterDoctor.toLowerCase())
-            : true;
-        const matchDate = filterDate ? item.date === filterDate : true;
-        return item.status === "pending" && matchDoctor && matchDate;
-    });
-
+  // // 🔹 Hủy lịch
+  // const handleCancel = (id) => {
+  //     const updated = appointments.map((item) =>
+  //         item.appointment_id === id ? { ...item, status: "canceled" } : item
+  //     );
+  //     setAppointments(updated);
+  // };
+  const handleCancel = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/doctor/refuse/${id}`, {
+        method: "PUT",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        console.warn("❌ Lỗi khi hủy lịch:", res.status);
+        return;
+      }
+      alert("Hủy lịch hẹn thành công");
+      // await fetchAppointments(); // cập nhật lại danh sách sau khi hủy
+      window.location.reload();
+    } catch (err) {
+      console.error("❌ Lỗi khi gọi API hủy lịch:", err);
+    }
+  };
+  // 🔹 Lọc lịch chờ chốt
+  // const filtered = appointments.filter((item) => {
+  //     const matchDoctor = filterDoctor
+  //         ? item.doctor_name
+  //               ?.toLowerCase()
+  //               .includes(filterDoctor.toLowerCase())
+  //         : true;
+  //     const matchDate = filterDate
+  //         ? item.appointment_date === filterDate
+  //         : true;
+  //     return item.status === "pending" && matchDoctor && matchDate;
+  // });
+  const filtered = appointments.filter((item) => {
+    const itemDate = (() => {
+      if (!item.appointment_date) return null;
+      const date = new Date(item.appointment_date);
+      date.setDate(date.getDate() + 1); // cộng thêm 1 ngày
+      return date.toISOString().split("T")[0];
+    })();
     return (
-        <div className="confirm-container">
-            <h2>Chốt Lịch Khám</h2>
-            <div className="filters">
-                {/* <input
-          type="text"
-          placeholder="Tìm theo tên bác sĩ..."
-          value={filterDoctor}
-          onChange={(e) => setFilterDoctor(e.target.value)}
-        /> */}
-                <input
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                />
-            </div>
-
-            <table className="confirm-table">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Bệnh Nhân</th>
-                        <th>Ngày</th>
-                        <th>Giờ</th>
-                        <th>Bác Sĩ</th>
-                        <th>Triệu Chứng</th>
-                        <th>Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filtered.length > 0 ? (
-                        filtered.map((item, index) => (
-                            <tr key={item.id}>
-                                <td>{index + 1}</td>
-                                <td>{item.name}</td>
-                                <td>{item.date}</td>
-                                <td>{item.time}</td>
-                                <td>{item.doctor}</td>
-                                <td>{item.symptom}</td>
-                                <td>
-                                    <button
-                                        onClick={() => handleConfirm(item.id)}
-                                    >
-                                        Chốt
-                                    </button>
-                                    <button
-                                        onClick={() => handleCancel(item.id)}
-                                        style={{
-                                            marginLeft: "10px",
-                                            backgroundColor: "#e74c3c",
-                                            color: "#fff",
-                                        }}
-                                    >
-                                        Hủy
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="7" className="no-data">
-                                Không có lịch chờ chốt
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
+      item.status === "pending" && (!filterDate || itemDate === filterDate)
     );
+  });
+
+  return (
+    <div className="confirm-container">
+      <h2>Chốt Lịch Khám</h2>
+      <div className="filters">
+        <input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+        />
+      </div>
+
+      <table className="confirm-table">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Bệnh Nhân</th>
+            <th>Ngày</th>
+            <th>Giờ</th>
+            <th>Triệu Chứng</th>
+            <th>Hành Động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.length > 0 ? (
+            filtered.map((item, index) => (
+              <tr key={item.appointment_id}>
+                <td>{index + 1}</td>
+                <td>{item.username}</td>
+                <td>
+                  {(() => {
+                    const date = new Date(item.appointment_date);
+                    date.setDate(date.getDate() + 1);
+                    return date.toISOString().split("T")[0];
+                  })()}
+                </td>
+                <td>{item.time}</td>
+                <td>{item.symptoms || "null"}</td>
+                <td>
+                  <button onClick={() => handleConfirm(item.appointment_id)}>
+                    Chốt
+                  </button>
+                  <button
+                    onClick={() => handleCancel(item.appointment_id)}
+                    style={{
+                      marginLeft: "10px",
+                      backgroundColor: "#e74c3c",
+                      color: "#fff",
+                    }}
+                  >
+                    Hủy
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" className="no-data">
+                Không có lịch chờ chốt
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export default ConfirmAppointment;

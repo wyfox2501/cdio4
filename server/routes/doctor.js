@@ -38,7 +38,7 @@ router.get("/confirm_refuse", async function (req, res, next) {
     try {
           const doctorId = req.session.user.id; // Lấy doctorId từ session
         const result = await healthy.query(
-            "SELECT * FROM appointments WHERE doctor_id = $1 AND status = $2",
+            "SELECT * FROM appointments s, patient p, users u WHERE s.patient_id=p.user_id and p.user_id=u.user_id and doctor_id = $1 AND status = $2",
             [doctorId, "pending"]
         );
 
@@ -139,7 +139,7 @@ router.put("/cancel/:id", upload.none(), async function (req, res, next) {
         const doctorId = req.session.user.id; // Lấy doctorId từ session
         const reason = req.body.reason; // Lấy lý do hủy từ body yêu cầu
         await healthy.query(
-            "UPDATE appointments SET status = 'canceled', reason = $1 WHERE id = $2 AND doctor_id = $3",
+            "UPDATE appointments SET status = 'canceled', reason = $1 WHERE appointment_id = $2 AND doctor_id = $3",
             [reason, appointmentId, doctorId]
         );
         res.status(200).json({ message: "Cancel appointment successfully" });
@@ -154,7 +154,7 @@ router.put("/confirm/:id", upload.none(), async function (req, res, next) {
         const appointmentId = req.params.id; // Lấy ID lịch hẹn từ URL
         const doctorId = req.session.user.id; // Lấy doctorId từ session
         await healthy.query(
-            "UPDATE appointments SET status = 'confirmed' WHERE id = $1 AND doctor_id = $2",
+            "UPDATE appointments SET status = 'confirmed' WHERE appointment_id = $1 AND doctor_id = $2",
             [appointmentId, doctorId]
         );
         res.status(200).json({ message: "Confirm appointment successfully" });
@@ -169,7 +169,7 @@ router.put("/refuse/:id", upload.none(), async function (req, res, next) {
         const appointmentId = req.params.id; // Lấy ID lịch hẹn từ URL
         const doctorId = req.session.user.id; // Lấy doctorId từ session
         await healthy.query(
-            "UPDATE appointments SET status = 'refused' WHERE id = $1 AND doctor_id = $2",
+            "UPDATE appointments SET status = 'refused' WHERE appointment_id = $1 AND doctor_id = $2",
             [appointmentId, doctorId]
         );
         res.status(200).json({ message: "Reject appointment successfully" });
