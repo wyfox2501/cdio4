@@ -178,6 +178,21 @@ router.put("/refuse/:id", upload.none(), async function (req, res, next) {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+//cập nhập thông tin doctor
+router.put("/", upload.none(), async function (req, res, next) {
+    try {
+        const { education,specification,experience } = req.body;
+        const doctorId = req.session.user.id; // Lấy doctorId từ session
+        await healthy.query(
+            "UPDATE doctor SET education=$1,specification=$2,experience=$3 WHERE user_id = $4",
+            [education,specification,experience, doctorId]
+        );
+        res.status(200).json({ message: "Update user successfully" });
+    } catch (error) {
+        console.error("Error in PUT /doctor:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+})
 // Thêm cron job để cập nhật trạng thái hoạt động
 // tự động cập nhập lúc 00h01p sáng mỗi ngày
 // const cron = require('node-cron');

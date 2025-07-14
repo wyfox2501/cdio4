@@ -65,7 +65,7 @@ function WorkSchedule() {
         };
         fetchUserName();
     }, []);
-
+    const [datahoure, setDataHoure] = useState([]);
     // 🔹 Lấy lịch khi có userName
     useEffect(() => {
         if (!userName) return; // Chờ có tên rồi mới fetch
@@ -84,7 +84,7 @@ function WorkSchedule() {
 
                 const data = await res.json();
                 console.log('data',data);
-                
+                setDataHoure(data[0]);
                 const formatted = data.map((item) => {
                     const startUTC =
                         new Date(item.datetime_start).getUTCHours() + 7;
@@ -102,6 +102,8 @@ function WorkSchedule() {
                         doctor: userName, // ✅ dùng tên user thay "Bác sĩ"
                         date: item.date,
                         hour: hours,
+                        datetime_start: item.datetime_start,
+                        datetime_end: item.datetime_end,
                     };
                 });
 
@@ -136,17 +138,27 @@ function WorkSchedule() {
         setCurrentDate(prev);
     };
 
-    const handleDeleteClick = (date, hour, doctor) => {
-        const numericHour = parseInt(hour.replace("H", ""));
-        const formattedDate = new Date(date).toDateString();
-        setSelectedDelete({
-            date: formattedDate,
-            timeStart: numericHour,
-            timeEnd: numericHour + 1,
-            doctor,
-        });
-    };
+    // const handleDeleteClick = (date, hour, doctor) => {
+    //     const numericHour = parseInt(hour.replace("H", ""));
+    //     const formattedDate = new Date(date).toDateString();
+    //     setSelectedDelete({
+    //         date: formattedDate,
+    //         timeStart: numericHour,
+    //         timeEnd: numericHour + 1,
+    //         doctor,
+    //     });
+    // };
+const handleDeleteClick = (date, datetimeStart, datetimeEnd, doctor) => {
+    const startHour = new Date(datetimeStart).getUTCHours() + 7;
+    const endHour = new Date(datetimeEnd).getUTCHours() + 7;
 
+    setSelectedDelete({
+        date: new Date(date).toDateString(),
+        timeStart: startHour >= 24 ? startHour - 24 : startHour,
+        timeEnd: endHour >= 24 ? endHour - 24 : endHour,
+        doctor,
+    });
+};
     const DeletePopup = ({ dataDelete, onClose, schedule, setSchedule }) => {
         const [data] = useState({
             ngay: dataDelete.date || "",
@@ -317,7 +329,8 @@ function WorkSchedule() {
                                                         onClick={() =>
                                                             handleDeleteClick(
                                                                 date,
-                                                                hour,
+                                                                item.datetime_start,
+                                                                item.datetime_end,
                                                                 item.doctor
                                                             )
                                                         }
