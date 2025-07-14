@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './quanlytaikhoan.scss';
 
 const dummyData = [
@@ -6,13 +6,24 @@ const dummyData = [
     { username: 'ABC2', role: 'Doctor', status: 'Lock' },
 ];
 
+
 function QuanLyTaiKhoan() {
+
     const [accounts, setAccounts] = useState(dummyData);
     const [showModal, setShowModal] = useState(false);
     const [selectedUserIndex, setSelectedUserIndex] = useState(null);
     const [newRole, setNewRole] = useState('');
     const [modalType, setModalType] = useState(null);
     const [filterRole, setFilterRole] = useState('');
+
+
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/admin/users')
+            .then(res => res.json())
+            .then(data => setAccounts(data))
+            .catch(err => console.error('Lỗi khi gọi API:', err));
+    }, []);
 
     const openModal = (index, type) => {
         setSelectedUserIndex(index);
@@ -21,18 +32,47 @@ function QuanLyTaiKhoan() {
         setShowModal(true);
     };
 
-    const confirmChange = () => {
+    const confirmChange = async () => {
         const updated = [...accounts];
-        if (modalType === 'role') {
-            updated[selectedUserIndex].role = newRole;
-        } else if (modalType === 'status') {
-            updated[selectedUserIndex].status =
-                updated[selectedUserIndex].status === 'Lock' ? 'Nomarl' : 'Lock';
+        const user = updated[selectedUserIndex];
+
+        try {
+            if (modalType === 'role') {
+                updated[selectedUserIndex].role = newRole;
+                // Gửi API đổi role (nếu cần)
+                await fetch(`http://localhost:5000/api/admin/users/role/${user.user_id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ role: newRole }),
+                });
+            }
+            else if (modalType === 'status') {
+                const userId = user.user_id;
+
+                const url = user.active === 'false'
+                    ? `http://localhost:5000/api/admin/unlock/${userId}`
+                    : `http://localhost:5000/api/admin/lock/${userId}`;
+
+                await fetch(url, { method: 'PUT' });
+
+                // Sau khi gọi API xong thì cập nhật local state
+                updated[selectedUserIndex].status = user.status === 'Lock' ? 'Normal' : 'Lock';
+            }
+
+            // Reload danh sách user từ server sau khi cập nhật
+            const res = await fetch('http://localhost:5000/api/admin/users');
+            const data = await res.json();
+            setAccounts(data);
+        } catch (err) {
+            console.error("Lỗi khi gọi API:", err);
         }
-        setAccounts(updated);
+
         setShowModal(false);
         setModalType(null);
     };
+
 
     const filteredAccounts = filterRole
         ? accounts.filter(acc => acc.role === filterRole)
@@ -44,9 +84,9 @@ function QuanLyTaiKhoan() {
             <div className="filter-role">
                 <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
                     <option value="">All</option>
-                    <option value="User">User</option>
-                    <option value="Doctor">Doctor</option>
-                    <option value="Admin">Admin</option>
+                    <option value="patient">User</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
 
@@ -71,7 +111,7 @@ function QuanLyTaiKhoan() {
                                         className={`status-label ${acc.status === 'Lock' ? 'lock' : 'normal'
                                             }`}
                                     >
-                                        {acc.status === 'Lock' ? '🔴 Lock' : '🟢 Nomarl'}
+                                        {acc.active === 'false' ? '🔴 Lock' : '🟢 Nomarl'}
                                     </span>
                                 </button1>
                             </td>

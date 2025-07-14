@@ -29,7 +29,7 @@ router.put('/approve/:id', async function(req, res, next) {
 // lấy tất cả người dùng
 router.get('/users', async function(req, res, next) {
   try {
-    const result = await healthy.query("SELECT * FROM users ");
+    const result = await healthy.query("SELECT * FROM users WHERE  active!='wait'");
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /users:", error);
@@ -42,9 +42,23 @@ router.put('/lock/:id', async function(req, res, next) {
     const userId = req.params.id; // Lấy ID người dùng từ URL
     const result = await healthy.query("SELECT * FROM users WHERE user_id = $1 and active=$2", [userId,'false']);
     if (result.rows.length > 0) {
-      return res.status(404).json({ message: "User already locked" });
+      await healthy.query("UPDATE users SET active = $1 WHERE user_id = $2 RETURNING *", ["true", userId]);
+      return res.status(404).json({ message: "User already open" });
     }
+    
     await healthy.query("UPDATE users SET active = $1 WHERE user_id = $2 RETURNING *", ["false", userId]);
+
+    res.status(200).json({ message: "User locked successfully"});
+  } catch (error) {
+    console.error("Error in PUT /users/lock/:id:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
+router.put('/unlock/:id', async function(req, res, next) {
+  try {
+    const userId = req.params.id; // Lấy ID người dùng từ URL
+
+      await healthy.query("UPDATE users SET active = $1 WHERE user_id = $2 RETURNING *", ["true", userId]);
 
     res.status(200).json({ message: "User locked successfully"});
   } catch (error) {

@@ -1,73 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './quanlyquyen.scss';
 
 function QuanLyQuyen() {
-
-  const [doctors, setDoctors] = useState([
-    {
-      role: 'DT01',
-      fullName: 'Dr. Nguyen Van A',
-      avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
-      degree: 'Doctor of Medicine (PhD)',
-      specialty: 'General Internal Medicine',
-      yearsOfExperience: 15,
-      workingHospital: 'Cho Ray Hospital',
-      clinicAddress: '123 Nguyen Trai, District 5, HCMC',
-      approved: false
-    },
-    {
-      role: 'DT02',
-      fullName: 'Dr. Tran Thi B',
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
-      degree: 'Master of Medicine',
-      specialty: 'Pediatrics',
-      yearsOfExperience: 8,
-      workingHospital: 'Children’s Hospital 1',
-      clinicAddress: '456 Hai Ba Trung, District 3, HCMC',
-      approved: false,
-      certifications: [
-        {
-          title: 'Internal Medicine Specialist Certificate',
-          issuedBy: 'University of Medicine and Pharmacy',
-          year: 2010,
-          imageUrl: 'https://via.placeholder.com/300x200?text=Certificate+1'
-        },
-        {
-          title: 'Advanced Endoscopy Training',
-          issuedBy: 'Cho Ray Hospital',
-          year: 2015,
-          imageUrl: 'https://via.placeholder.com/300x200?text=Certificate+2'
-        }
-      ]
-    },
-    {
-      role: 'DT03',
-      fullName: 'Dr. Pham Van C',
-      avatar: 'https://randomuser.me/api/portraits/men/60.jpg',
-      degree: 'Specialist Doctor Level II',
-      specialty: 'Cardiology',
-      yearsOfExperience: 20,
-      workingHospital: 'University Medical Center Ho Chi Minh City',
-      clinicAddress: '789 Le Loi, District 1, HCMC',
-      approved: false,
-      certifications: []
-    }
-  ]);
-
+  const [doctors, setDoctors] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [filterdoc, setFilterdoc] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
 
+  // Fetch pending doctor accounts from backend
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/admin/wait');
+        setDoctors(response.data);
 
-  const filtereddoc = filterdoc === ''
-    ? doctors
-    : doctors.filter(doc => doc.approved === (filterdoc === 'true'));
+      } catch (error) {
+        console.error('Error fetching doctor list:', error);
+      }
+    };
 
+    fetchDoctors();
+  }, []);
 
+  // Filter by approval status
+  const filteredDoctors =
+    filterStatus === ''
+      ? doctors
+      : doctors.filter((doc) => String(doc.active) === filterStatus);
 
-  const handleViewProfile = (role) => {
-    const doctor = doctors.find(doc => doc.role === role);
+  const handleViewProfile = (user_id) => {
+    const doctor = doctors.find((doc) => doc.user_id === user_id);
     setSelectedDoctor(doctor);
     setShowModal(true);
   };
@@ -77,12 +40,14 @@ function QuanLyQuyen() {
     setShowModal(false);
   };
 
+  // Approve doctor API call
   const handleApprove = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/doctors/${selectedDoctor.role}/approve`, { approved: true });
+      await axios.put(`http://localhost:5000/api/admin/approve/${selectedDoctor.user_id}`);
 
-      const updatedDoctors = doctors.map(doc =>
-        doc.role === selectedDoctor.role ? { ...doc, approved: true } : doc
+
+      const updatedDoctors = doctors.map((doc) =>
+        doc.user_id === selectedDoctor.user_id ? { ...doc, active: true } : doc
       );
       setDoctors(updatedDoctors);
 
@@ -93,58 +58,74 @@ function QuanLyQuyen() {
       alert('Failed to approve doctor');
     }
   };
-
+// đọc thông tin doctor
+const [doctorsInfo, setDoctorsInfo] = useState([]);
+useEffect(() => {
+  const fetchDoctors = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/patient/doctor/${selectedDoctor.user_id}`);
+      setDoctorsInfo(response.data[0]);
+    } catch (error) {
+      console.error('Error fetching doctor list:', error);
+    }
+  };
+  fetchDoctors();
+}, [selectedDoctor]);
   return (
     <div className="admin-container">
       <div className="main-content">
-        <h1>Browse Account</h1>
+        <h1>Doctor Account Approval</h1>
+
         <div className="filter-role">
-          <select value={filterdoc} onChange={(e) => setFilterdoc(e.target.value)}>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             <option value="">All</option>
             <option value="true">Approved</option>
-            <option value="false">Not Approved</option>
+            <option value="wait">Pending</option>
           </select>
-
         </div>
+
         <table>
           <thead>
             <tr>
-              <th>Role</th>
+              <th>User ID</th>
               <th>Action</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {filtereddoc.map((doc, index) => (
+            {filteredDoctors.map((doc, index) => (
               <tr key={index}>
-                <td>{doc.role}</td>
+                <td>{doc.user_id}</td>
                 <td>
-                  <button className="action-btn edit" onClick={() => handleViewProfile(doc.role)}>
+                  <button className="action-btn edit" onClick={() => handleViewProfile(doc.user_id)}>
                     📝 View Profile
                   </button>
                 </td>
-                <td>{doc.approved ? '✅ Approved' : '❌ Not Approved'}</td>
+                <td>{doc.active === true ? '✅ Approved' : '❌ Pending'}</td>
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
 
       {showModal && selectedDoctor && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>View Profile</h2>
+            <h2>Doctor Profile</h2>
             <div className="doctor-profile">
               <div className="header">
-                <img src={selectedDoctor.avatar} alt={selectedDoctor.fullName} className="avatar" />
+                <img
+                  src={`http://localhost:5000/images/${selectedDoctor.avata || 'avatar.webp'}`}
+                  alt={selectedDoctor.username}
+                  className="avatar"
+                />
                 <div className="info">
-                  <h2>{selectedDoctor.fullName}</h2>
-                  <p><strong>Degree:</strong> {selectedDoctor.degree}</p>
-                  <p><strong>Specialty:</strong> {selectedDoctor.specialty}</p>
-                  <p><strong>Experience:</strong> {selectedDoctor.yearsOfExperience} years</p>
-                  <p><strong>Hospital:</strong> {selectedDoctor.workingHospital}</p>
-                  <p><strong>Address:</strong> {selectedDoctor.clinicAddress}</p>
+                  <h2>{doctorsInfo.username}</h2>
+                  <p><strong>Degree:</strong> <img src={`http://localhost:5000/images/${doctorsInfo.image_certification || 'không có hình'}`} alt="" /></p>
+                  <p><strong>Specialty:</strong> {doctorsInfo.specification}</p>
+                  <p><strong>Experience:</strong> {doctorsInfo.experience} years</p>
+                  <p><strong>Education:</strong> {doctorsInfo.education}</p>
+                  <p><strong>Clinic Address:</strong> {selectedDoctor.address}</p>
                 </div>
               </div>
 
@@ -165,10 +146,10 @@ function QuanLyQuyen() {
             </div>
 
             <div className="button">
-              {!selectedDoctor.approved && (
-                <button className="confirm-btn" onClick={handleApprove}>✅ Confirm</button>
+              {selectedDoctor.active !== true && (
+                <button className="confirm-btn" onClick={handleApprove}>✅ Approve</button>
               )}
-              <button className="huy-btn" onClick={resetModal}>❌ Cancel</button>
+              <button className="cancel-btn" onClick={resetModal}>❌ Cancel</button>
             </div>
           </div>
         </div>

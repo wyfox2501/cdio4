@@ -40,6 +40,10 @@ router.post('/appointments',upload.none(), async function(req, res, next) {
     try {
         const customer_id=req.session.user.id;
         const {doctor_id,appointment_date,time,symptoms}=req.body;
+        const check=await healthy.query("SELECT * FROM appointments WHERE doctor_id=$1 and appointment_date=$2 and time=$3", [doctor_id,appointment_date,time]);
+        if(check.rowCount>0){
+            return res.status(400).json({ message: "appointments had exist" });
+        }
         await healthy.query("INSERT INTO appointments (doctor_id,patient_id,appointment_date,time,status,symptoms) VALUES ($1,$2,$3,$4,$5,$6)",[doctor_id,customer_id,appointment_date,time,'pending',symptoms]);
         res.status(201).json({ message: "Add appointment successfully" });
     } catch (error) {
