@@ -5,12 +5,13 @@ const upload = multer();
 const cron = require("node-cron");
 const healthy = require("../model/Heathy");
 //lấy lịch hẹn của bác sĩ(doctor)
-router.get("/view_appointment", upload.none(), async function (req, res, next) {
+router.get("/view_appointment/:id", upload.none(), async function (req, res, next) {
     try {
-        const doctorId = req.session.user.id; // Lấy doctorId từ session
+        // const doctorId = req.session.user.id; // Lấy doctorId từ session
+        const doctorId = req.params.id;
         const result = await healthy.query(
             "SELECT * FROM appointments WHERE doctor_id = $1 and status=$2",
-            [doctorId, "confirm"]
+            [doctorId, "confirmed"]
         );
         res.status(200).json(result.rows);
     } catch (error) {
