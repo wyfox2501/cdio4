@@ -194,3 +194,43 @@ $slot-booked-text: #6c757d;
     }
   }
 }
+
+// Kiểu cho thông báo tải lịch
+.loading-message {
+    grid-column: 1 / -1; // Trải dài hết chiều rộng
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+// Kiểu cho thông báo khi không có khung giờ
+.no-slots-message {
+    grid-column: 1 / -1; // Trải dài hết chiều rộng
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border: 1px dashed #dee2e6;
+    color: #6c757d;
+
+    .icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    p {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #343a40;
+        margin: 0 0 0.5rem 0;
+    }
+
+    span {
+        font-size: 0.9rem;
+    }
+}

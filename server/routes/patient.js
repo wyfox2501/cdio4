@@ -51,6 +51,32 @@ router.post('/appointments',upload.none(), async function(req, res, next) {
         res.status(500).json({ message: "Internal server error" });
     }
 })
+
+// API để lấy các khung giờ đã được đặt của một bác sĩ vào một ngày cụ thể
+router.get('/doctor/:id/booked-slots', async function(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { date } = req.query; // Nhận ngày từ URL, ví dụ: ?date=2025-07-13
+
+    if (!date) {
+      return res.status(400).json({ message: "Vui lòng cung cấp ngày." });
+    }
+
+    const result = await healthy.query(
+      "SELECT time FROM appointments WHERE doctor_id = $1 AND appointment_date = $2 AND status != 'cancelled'", 
+      [id, date]
+    );
+
+    // Trả về một mảng chỉ chứa các chuỗi thời gian, ví dụ: ["08:30:00", "09:00:00"]
+    const bookedTimes = result.rows.map(row => row.time);
+    res.status(200).json(bookedTimes);
+
+  } catch (error) {
+    console.error("Error in GET /doctor/:id/booked-slots:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // lấy thông tin customer
 router.get('/', async function(req, res, next) {
   try {

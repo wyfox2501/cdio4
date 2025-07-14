@@ -35,12 +35,32 @@ router.get('/view_work_schedule', async function(req, res, next) {
 //lấy danh sách thông tin lịch hẹn để chốt hoặc hủy
 router.get("/confirm_refuse", async function (req, res, next) {
     try {
-        const doctorId = req.session.user.id;
+          const doctorId = req.session.user.id; // Lấy doctorId từ session
         const result = await healthy.query(
-            "SELECT * FROM appointments WHERE doctor_id = $1 and status=$2",
+            "SELECT * FROM appointments WHERE doctor_id = $1 AND status = $2",
             [doctorId, "pending"]
         );
-        res.status(200).json(result.rows);
+
+        const now = new Date(); // thời gian hiện tại
+        const validAppointments = [];
+
+        // Lặp qua từng lịch
+        for (const appt of result.rows) {
+            const appointmentDate = new Date(appt.appointment_date); // assuming column name is appointment_date
+
+            // Nếu ngày hẹn < hôm nay → cancel
+            if (appointmentDate < now) {
+                await healthy.query(
+                    "UPDATE appointments SET status = $1 WHERE appointment_id = $2",
+                    ["refused", appt.appointment_id]
+                );
+            } else {
+                // Còn hợp lệ
+                validAppointments.push(appt);
+            }
+        }
+
+        res.status(200).json(validAppointments);
     } catch (error) {
         console.error("Error in GET /doctor/confirm_refuse:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -65,6 +85,7 @@ router.get("/", async function (req, res, next) {
 router.get('/history',async function(req, res, next) {
   try {
     const doctorId = req.session.user.id; // Lấy doctorId từ session
+    // const doctorId = req.params.id;
     const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId, 'successfully']);
     res.status(200).json(result.rows);
   } catch (error) {

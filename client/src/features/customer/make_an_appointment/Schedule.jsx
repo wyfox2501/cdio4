@@ -3,17 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Schedule.scss';
 
-// Hàm tạo các créneaux thời gian trong ngày
-const generateTimeSlots = () => {
-    const slots = [];
-    for (let i = 8; i < 17; i++) {
-        slots.push(`${String(i).padStart(2, '0')}:00:00`);
-        if (i < 16) {
-             slots.push(`${String(i).padStart(2, '0')}:30:00`);
-        }
-    }
-    return slots;
+// --- HELPER FUNCTION: Chuyển đổi đối tượng Date thành chuỗi YYYY-MM-DD ---
+// Sử dụng các thành phần local của Date để tránh lỗi múi giờ
+const toYYYYMMDD = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
+
 
 function Schedule() {
     const { doctorId } = useParams();
@@ -21,62 +19,115 @@ function Schedule() {
 
     const [clinicAddress, setClinicAddress] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [allSlots] = useState(generateTimeSlots());
-    const [bookedSlots, setBookedSlots] = useState([]);
+    
+    // Đổi tên state để rõ ràng hơn
+    const [timeSlots, setTimeSlots] = useState([]); 
+    
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [symptoms, setSymptoms] = useState('');
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // useEffect để fetch địa chỉ của bác sĩ
     useEffect(() => {
-        const fetchDoctorData = async () => {
-            try {
-                const doctorResponse = await axios.get(`http://localhost:5000/api/patient/doctors/${doctorId}`);
-                setClinicAddress(doctorResponse.data.address || 'Địa chỉ đang được cập nhật');
-            } catch (err) {
-                console.error("Lỗi khi lấy dữ liệu bác sĩ:", err);
-            }
-        };
-        fetchDoctorData();
-    }, [doctorId]);
-    
-    // useEffect để fetch lịch trình khi ngày thay đổi
-    useEffect(() => {
-        const fetchSchedule = async () => {
+        const fetchScheduleData = async () => {
             setIsLoading(true);
-            const dateString = selectedDate.toISOString().split('T')[0];
+            setError('');
+            setTimeSlots([]); // Reset state
+            setSelectedSlot(null);
+
+            // Sử dụng helper function để đảm bảo định dạng ngày chính xác
+            const dateString = toYYYYMMDD(selectedDate);
+
             try {
-                const scheduleResponse = await axios.get(`http://localhost:5000/api/patient/doctors/${doctorId}/schedule?date=${dateString}`);
-                setBookedSlots(scheduleResponse.data);
+                // Gọi song song 3 API
+                const [doctorRes, workScheduleRes, bookedSlotsRes] = await Promise.all([
+                    axios.get(`http://localhost:5000/api/patient/doctor/${doctorId}`),
+                    axios.get(`http://localhost:5000/api/patient/work_schedule_doctor/${doctorId}`),
+                    axios.get(`http://localhost:5000/api/patient/doctor/${doctorId}/booked-slots?date=${dateString}`)
+                ]);
+
+                setClinicAddress(doctorRes.data[0]?.address || 'Địa chỉ đang được cập nhật');
+
+                const allWorkBlocks = workScheduleRes.data;
+                // const booked = bookedSlotsRes.data;
+                const booked = bookedSlotsRes.data || []; 
+
+                // === LOGIC SO SÁNH NGÀY THÁNG AN TOÀN NHẤT ===
+                // So sánh các thành phần ngày, tháng, năm để tránh lỗi múi giờ
+                const workBlocksForDay = allWorkBlocks.filter(block => {
+                    if (!block.date) return false;
+                    // Chuyển ngày từ DB (dạng UTC) về đối tượng Date ở local
+                    const dbDate = new Date(block.date);
+                    
+                    // So sánh từng thành phần
+                    return dbDate.getFullYear() === selectedDate.getFullYear() &&
+                           dbDate.getMonth() === selectedDate.getMonth() &&
+                           dbDate.getDate() === selectedDate.getDate();
+                });
+
+                if (workBlocksForDay.length === 0) {
+                    setError("Bác sĩ không có lịch làm việc vào ngày này.");
+                    setIsLoading(false);
+                    return;
+                }
+                
+                const generatedSlots = [];
+                // Lặp qua từng ca làm việc trong ngày
+                workBlocksForDay.forEach(block => {
+                    if (block.datetime_start && block.datetime_end) {
+                        const startTime = new Date(block.datetime_start);
+                        const endTime = new Date(block.datetime_end);
+                        let currentSlot = new Date(startTime);
+
+                        while (currentSlot < endTime) {
+                            const timeString = currentSlot.toTimeString().split(' ')[0];
+                            
+                            // Tạo một object chứa thời gian và trạng thái (đã đặt hay chưa)
+                            generatedSlots.push({
+                                time: timeString,
+                                isBooked: booked.includes(timeString)
+                            });
+                            
+                            // Tăng thời gian lên 1 giờ
+                            currentSlot.setHours(currentSlot.getHours() + 1);
+                        }
+                    }
+                });
+                
+                setTimeSlots(generatedSlots);
+                // Kiểm tra xem có khung giờ nào còn trống không
+                if (!generatedSlots.some(slot => !slot.isBooked)) {
+                    setError("Tất cả các khung giờ trong ngày đã được đặt.");
+                }
+
             } catch (err) {
-                console.error("Lỗi khi lấy lịch trình:", err);
-                setError("Không thể tải lịch trình cho ngày này.");
+                console.error("Lỗi khi tải lịch trình:", err);
+                setError("Không thể tải lịch trình. Vui lòng thử lại.");
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchSchedule();
+
+        fetchScheduleData();
     }, [selectedDate, doctorId]);
 
-
-    // === LOGIC MỚI: CHỈ CHUYỂN TRANG VÀ GỬI DỮ LIỆU ===
     const handleProceedToConfirmation = () => {
         if (!selectedSlot) {
-            setError("Vui lòng chọn một créneau thời gian.");
+            setError("Vui lòng chọn một khung giờ.");
             return;
         }
-        
-        // Tạo đối tượng chứa tất cả thông tin cần thiết
+        if(!symptoms) {
+            alert("Vui lòng nhập lý do kham.");
+            return;
+        }
         const appointmentInfo = {
             doctorId,
-            appointmentDate: selectedDate.toISOString().split('T')[0],
+            appointmentDate: toYYYYMMDD(selectedDate), // Gửi đi ngày đã được format
             time: selectedSlot,
             symptoms,
             clinicAddress
         };
 
-        // Điều hướng đến trang xác nhận và truyền dữ liệu qua state
         navigate('/datlich/xac-nhan-thong-tin', { state: { appointmentInfo } });
     };
 
@@ -93,26 +144,38 @@ function Schedule() {
                 <label>Chọn ngày:</label>
                 <input
                     type="date"
-                    value={selectedDate.toISOString().split('T')[0]}
-                    onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                    min={new Date().toISOString().split('T')[0]}
+                    // SỬA LẠI: Dùng helper function để hiển thị ngày
+                    value={toYYYYMMDD(selectedDate)}
+                    // SỬA LẠI: Xử lý chuỗi ngày để tránh lỗi múi giờ
+                    onChange={(e) => {
+                        // Tách chuỗi YYYY-MM-DD và tạo Date object ở múi giờ local
+                        const [year, month, day] = e.target.value.split('-').map(Number);
+                        setSelectedDate(new Date(year, month - 1, day));
+                    }}
+                    min={toYYYYMMDD(new Date())}
                 />
             </div>
             <div className="time-slots-container">
-                {isLoading ? <p>Đang tải lịch...</p> : allSlots.map(slot => {
-                    const isBooked = bookedSlots.includes(slot);
-                    const isSelected = selectedSlot === slot;
-                    return (
+                {isLoading ? <p className="loading-message">Đang tải lịch...</p> : 
+                 timeSlots.length > 0 ? (
+                    timeSlots.map(slotInfo => (
                         <button
-                            key={slot}
-                            className={`time-slot ${isBooked ? 'booked' : ''} ${isSelected ? 'selected' : ''}`}
-                            disabled={isBooked}
-                            onClick={() => !isBooked && setSelectedSlot(slot)}
+                            key={slotInfo.time}
+                            className={`time-slot ${slotInfo.isBooked ? 'booked' : ''} ${selectedSlot === slotInfo.time ? 'selected' : ''}`}
+                            disabled={slotInfo.isBooked}
+                            onClick={() => !slotInfo.isBooked && setSelectedSlot(slotInfo.time)}
                         >
-                            {slot.substring(0, 5)}
+                            {slotInfo.time.substring(0, 5)}
                         </button>
-                    );
-                })}
+                    ))
+                 ) : (
+                    <div className="no-slots-message">
+                        <span className="icon">🗓️</span>
+                        <p>{error || "Không có khung giờ trống nào"}</p>
+                        <span>Vui lòng chọn một ngày khác hoặc kiểm tra lại sau.</span>
+                    </div>
+                 )
+                }
             </div>
             <div className="symptoms-container">
                 <label htmlFor="symptoms">Mô tả triệu chứng (không bắt buộc):</label>
@@ -121,11 +184,11 @@ function Schedule() {
                     rows="4"
                     value={symptoms}
                     onChange={(e) => setSymptoms(e.target.value)}
+                    required
                     placeholder="Ví dụ: Đau đầu, chóng mặt..."
                 ></textarea>
             </div>
             <footer className="footer-action">
-                {error && <p className="error-message">{error}</p>}
                 <button
                     className="confirm-button"
                     onClick={handleProceedToConfirmation}

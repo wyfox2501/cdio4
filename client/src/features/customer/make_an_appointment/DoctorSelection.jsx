@@ -91,7 +91,7 @@ export default function DoctorSelection() {
                             onClick={() => handleDoctorClick(doctor.user_id)}
                         >
                             <img src={`http://localhost:5000/images/${doctor.avata || 'avatar.webp'}`} alt={doctor.username} className="doctor-avatar" />
-                            <p className="doctor-name">{doctor.full_name}</p>
+                            <p className="doctor-name">{doctor.username}</p>
                             <p className="doctor-spec">{doctor.specification}</p>
                             <p className="doctor-exp">{doctor.experience} năm kinh nghiệm</p>
                         </div>

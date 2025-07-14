@@ -93,15 +93,17 @@
   align-items: flex-start;
 }
 
-.doctor-name {
+.doctor-name, .doctor-spec, .doctor-exp  {
   font-weight: 500;
   font-size: 18px;
-  margin-bottom: 2px;
+  // margin-bottom: 2px;
+  margin-left: 5%;
 }
 
 .doctor-price {
   color: red;
   font-weight: bold;
+
 }
 
 .pagination {
