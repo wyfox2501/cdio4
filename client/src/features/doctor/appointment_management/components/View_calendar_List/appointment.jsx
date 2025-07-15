@@ -51,8 +51,10 @@ function ViewCalendarKham() {
                 if (!doctorId) return;
 
                 const res = await fetch(
-                    `http://localhost:5000/api/doctor/view_appointment`,
-                    { credentials: "include" }
+                    "http://localhost:5000/api/doctor/view_appointment",
+                    {
+                        credentials: "include",
+                    }
                 );
 
                 if (!res.ok) return;
@@ -61,8 +63,11 @@ function ViewCalendarKham() {
                 const formattedData = data.map((item) => {
                     const timeString = item.appointment_time || item.time;
                     const hourPart = timeString
-                        ? parseInt(timeString.split(":"[0])) + "H"
+                        ? parseInt(timeString.split(":")[0]) + "H"
                         : "";
+
+                    const rawDate = item.appointment_date.split("T")[0];
+                    const fixedDate = new Date(`${rawDate}T00:00:00`);
 
                     return {
                         id: item.appointment_id,
@@ -71,8 +76,7 @@ function ViewCalendarKham() {
                             item.username ||
                             item.patient_name ||
                             "Không rõ",
-                        // date: item.appointment_date,
-                        date:  new Date(item.appointment_date),
+                        date: fixedDate,
                         time: hourPart,
                         sdt: item.phone || "",
                         symptum: item.symptoms || "",
@@ -88,24 +92,21 @@ function ViewCalendarKham() {
         fetchAppointments();
     }, []);
 
-    // const getWeekday = (dateStr) => daysOfWeek[new Date(dateStr).getDay()];
-const getWeekday = (dateStr) => {
-    const date = new Date(dateStr);
-    return daysOfWeek[date.getDay()]; // ✅ dùng local time
-};
+    const getWeekday = (dateStr) => {
+        const date = new Date(dateStr);
+        return daysOfWeek[date.getDay()];
+    };
 
     const [startDay, setStartDay] = useState(() => {
-    const today = new Date();
-    today.setDate(today.getDate() + 1); // Ngày mai
+        const today = new Date();
+        today.setDate(today.getDate() + 1); // Ngày mai
+        const dayOfWeek = today.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + diff);
+        return monday;
+    });
 
-    const dayOfWeek = today.getDay(); // 0 = Chủ Nhật, 1 = Thứ Hai, ..., 6 = Thứ Bảy
-    const diff = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek); // dịch về Thứ Hai
-
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diff);
-
-    return monday;
-});
     const [endDay, setEndDay] = useState(new Date(startDay));
 
     useEffect(() => {
@@ -125,6 +126,11 @@ const getWeekday = (dateStr) => {
             (prev) => new Date(prev.getTime() - 7 * 24 * 60 * 60 * 1000)
         );
     };
+
+    const filteredPatients = patients.filter((p) => {
+        const day = new Date(p.date);
+        return day >= startDay && day <= endDay;
+    });
 
     const handleShowCancel = (patient) => {
         const formattedDate = new Date(patient.date).toISOString().slice(0, 10);
@@ -181,7 +187,6 @@ const getWeekday = (dateStr) => {
                                         day: "2-digit",
                                         month: "2-digit",
                                     });
-
                                 return (
                                     <th key={i} className="time2">
                                         <div>{weekday}</div>
@@ -204,7 +209,7 @@ const getWeekday = (dateStr) => {
                                 <td className="hour">{hour}</td>
                                 {daysOfWeek.map((day) => (
                                     <td key={day + hour} className="date">
-                                        {patients
+                                        {filteredPatients
                                             .filter(
                                                 (p) =>
                                                     getWeekday(p.date) ===
@@ -247,6 +252,8 @@ const getWeekday = (dateStr) => {
         </div>
     );
 }
+
+// ⬇ Component CancelSchedule giữ nguyên không thay đổi
 
 function CancelSchedule({ data, onClose, onSuccess }) {
     const [formData, setFormData] = useState(data);
@@ -317,7 +324,7 @@ function CancelSchedule({ data, onClose, onSuccess }) {
                         <input
                             type="text"
                             name="thoigian"
-                            value={formData.thoigian+'H'}
+                            value={formData.thoigian + "H"}
                             readOnly
                         />
                     </div>
