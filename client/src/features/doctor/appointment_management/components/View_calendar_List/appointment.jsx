@@ -37,39 +37,75 @@ function ViewCalendarKham() {
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const response = await fetch(
-                    "http://localhost:5000/api/doctor/view_appointment",
+                const resDoctor = await fetch(
+                    "http://localhost:5000/api/doctor",
                     {
-                        withCredentials: true,
-                        headers: {
-                            "Cache-Control": "no-cache",
-                        },
+                        method: "GET",
+                        credentials: "include",
                     }
                 );
-                console.log("Dữ liệu từ backend:", response.data);
-                const data = response.data.map((item) => ({
-                    id: item.id,
-                    name: item.patient_name,
-                    date: item.appointment_date,
-                    time: item.appointment_time,
-                    sdt: item.patient_phone,
-                    symptum: item.symptoms,
-                }));
-                console.log("Dữ liệu format FE:", data); // ✅ Thêm dòng này để kiểm tra dữ liệu đã format
-                setPatients(data);
+
+                if (!resDoctor.ok) return;
+                const doctorData = await resDoctor.json();
+                const doctorId = doctorData[0]?.user_id;
+                if (!doctorId) return;
+
+                const res = await fetch(
+                    `http://localhost:5000/api/doctor/view_appointment`,
+                    { credentials: "include" }
+                );
+
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const formattedData = data.map((item) => {
+                    const timeString = item.appointment_time || item.time;
+                    const hourPart = timeString
+                        ? parseInt(timeString.split(":"[0])) + "H"
+                        : "";
+
+                    return {
+                        id: item.appointment_id,
+                        name:
+                            item.name ||
+                            item.username ||
+                            item.patient_name ||
+                            "Không rõ",
+                        // date: item.appointment_date,
+                        date:  new Date(item.appointment_date),
+                        time: hourPart,
+                        sdt: item.phone || "",
+                        symptum: item.symptoms || "",
+                    };
+                });
+
+                setPatients(formattedData);
             } catch (error) {
-                console.error("Error fetching appointments:", error);
+                console.error("Lỗi khi fetch lịch khám:", error);
             }
         };
+
         fetchAppointments();
     }, []);
 
-    const getWeekday = (dateStr) => {
-        const date = new Date(dateStr);
-        return daysOfWeek[date.getDay()];
-    };
+    // const getWeekday = (dateStr) => daysOfWeek[new Date(dateStr).getDay()];
+const getWeekday = (dateStr) => {
+    const date = new Date(dateStr);
+    return daysOfWeek[date.getDay()]; // ✅ dùng local time
+};
 
-    const [startDay, setStartDay] = useState(new Date(2025, 6, 7)); // 7/7/2025
+    const [startDay, setStartDay] = useState(() => {
+    const today = new Date();
+    today.setDate(today.getDate() + 1); // Ngày mai
+
+    const dayOfWeek = today.getDay(); // 0 = Chủ Nhật, 1 = Thứ Hai, ..., 6 = Thứ Bảy
+    const diff = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek); // dịch về Thứ Hai
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff);
+
+    return monday;
+});
     const [endDay, setEndDay] = useState(new Date(startDay));
 
     useEffect(() => {
@@ -169,15 +205,11 @@ function ViewCalendarKham() {
                                 {daysOfWeek.map((day) => (
                                     <td key={day + hour} className="date">
                                         {patients
-                                            .filter((p) => {
-                                                const weekday = getWeekday(
-                                                    p.date
-                                                );
-                                                return (
-                                                    weekday === day &&
-                                                    p.time === hour
-                                                );
-                                            })
+                                            .filter(
+                                                (p) =>
+                                                    getWeekday(p.date) ===
+                                                        day && p.time === hour
+                                            )
                                             .map((p, index) => (
                                                 <div
                                                     key={index}
@@ -228,34 +260,43 @@ function CancelSchedule({ data, onClose, onSuccess }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!formData.lydo.trim()) {
             setMessage("Vui lòng nhập lý do hủy");
             setColor("#f03242");
             return;
         }
 
-        setMessage("Đã hủy lịch thành công!");
-        setColor("green");
-
         const cancelAppointment = async () => {
             try {
-                await fetch(
-                    `http://localhost:5000/doctor/cancel/${formData.id}`,
-                    { reason: formData.lydo },
-                    { withCredentials: true }
+                const res = await fetch(
+                    `http://localhost:5000/api/doctor/cancel/${formData.id}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ reason: formData.lydo }),
+                        credentials: "include",
+                    }
                 );
-                onSuccess(formData.id);
+
+                const result = await res.json();
+                if (res.ok) {
+                    setMessage("Đã hủy lịch thành công!");
+                    setColor("green");
+                    onSuccess(formData.id);
+                } else {
+                    setMessage("Hủy lịch thất bại: " + result.message);
+                    setColor("#f03242");
+                }
             } catch (error) {
-                console.error("Error cancelling appointment:", error);
+                console.error("Lỗi khi hủy lịch:", error);
                 setMessage("Hủy lịch thất bại, thử lại!");
                 setColor("#f03242");
             }
         };
-        setTimeout(() => {
-            cancelAppointment();
-        }, 500);
+
+        cancelAppointment();
     };
+
     return (
         <div className="add cancel-form">
             <p style={{ backgroundColor: color, color: "white" }}>{message}</p>
@@ -274,9 +315,9 @@ function CancelSchedule({ data, onClose, onSuccess }) {
                     <div className="hour">
                         <span>Thời gian</span>
                         <input
-                            type="number"
+                            type="text"
                             name="thoigian"
-                            value={formData.thoigian}
+                            value={formData.thoigian+'H'}
                             readOnly
                         />
                     </div>
@@ -313,7 +354,6 @@ function CancelSchedule({ data, onClose, onSuccess }) {
                             type="text"
                             name="lydo"
                             value={formData.lydo}
-                            placeholder="VD: cảm, sốt"
                             onChange={handleChange}
                         />
                     </div>

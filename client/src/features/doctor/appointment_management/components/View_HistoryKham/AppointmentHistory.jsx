@@ -3,7 +3,6 @@ import "./appointmentHistory.scss";
 
 function AppointmentHistory() {
     const [data, setData] = useState([]);
-    const [filterDoctor, setFilterDoctor] = useState("");
     const [filterDate, setFilterDate] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -12,28 +11,29 @@ function AppointmentHistory() {
         const fetchHistory = async () => {
             setLoading(true);
             try {
-                const response = await fetch("http://localhost:3000/doctor/history", {
-                    method: "GET",
-                    credentials: "include", // gửi cookie session
-                    cache: "no-store", // tránh lỗi 304
-                });
+                const response = await fetch(
+                    "http://localhost:5000/api/doctor/history",
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Lỗi: ${response.status}`);
                 }
 
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
-                    const data = await response.json();
-                    console.log("Fetched history data:", data);
-                    setData(data);
+                    const result = await response.json();
+                    console.log("Lịch sử khám:", result);
+                    setData(result);
                 } else {
-                    console.error("Response is not JSON:", response);
-                    setError("Dữ liệu không hợp lệ từ server.");
+                    setError("Phản hồi không phải JSON");
                 }
-            } catch (error) {
-                console.error("Error fetching history:", error);
-                setError("Không thể tải dữ liệu lịch sử khám bệnh.");
+            } catch (err) {
+                console.error("Lỗi gọi API:", err);
+                setError("Không thể tải lịch sử khám bệnh.");
             } finally {
                 setLoading(false);
             }
@@ -44,11 +44,11 @@ function AppointmentHistory() {
 
     const filteredData = Array.isArray(data)
         ? data.filter((item) => {
-              const matchDoctor = filterDoctor
-                  ? item.doctor_name?.toLowerCase().includes(filterDoctor.toLowerCase())
-                  : true;
-              const matchDate = filterDate ? item.date === filterDate : true;
-              return matchDoctor && matchDate && item.status === "successfully";
+              if (!filterDate) return true;
+              const itemDate = new Date(item.appointment_date)
+                  .toISOString()
+                  .split("T")[0];
+              return itemDate === filterDate;
           })
         : [];
 
@@ -76,25 +76,49 @@ function AppointmentHistory() {
                             <th>Ngày</th>
                             <th>Giờ</th>
                             <th>Triệu Chứng</th>
-                            <th>Bác Sĩ</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredData.length > 0 ? (
-                            filteredData.map((item, index) => (
-                                <tr key={item.id || index}>
-                                    <td>{index + 1}</td>
-                                    <td>{item.patient_name}</td>
-                                    <td>{item.date}</td>
-                                    <td>{item.time}</td>
-                                    <td>{item.symptom}</td>
-                                    <td>{item.doctor_name}</td>
-                                </tr>
-                            ))
+                            filteredData.map((item, index) => {
+                                const dateObj = item.appointment_date
+                                    ? new Date(item.appointment_date)
+                                    : null;
+                                return (
+                                    <tr key={item.appointment_id || index}>
+                                        <td>{index + 1}</td>
+                                        <td>
+                                            {item.patient_name || "Không rõ"}
+                                        </td>
+                                        <td>
+                                            {dateObj
+                                                ? dateObj.toLocaleDateString(
+                                                      "vi-VN"
+                                                  )
+                                                : "Không rõ"}
+                                        </td>
+                                        <td>
+                                            {dateObj
+                                                ? dateObj.toLocaleTimeString(
+                                                      "vi-VN",
+                                                      {
+                                                          hour: "2-digit",
+                                                          minute: "2-digit",
+                                                      }
+                                                  )
+                                                : item.appointment_time ||
+                                                  "Không rõ"}
+                                        </td>
+                                        <td>{item.symptoms || "Không rõ"}</td>
+                                    </tr>
+                                );
+                            })
                         ) : (
                             <tr>
-                                <td colSpan="6" className="no-data">
-                                    Không có dữ liệu phù hợp
+                                <td colSpan="5">
+                                    {data.length === 0
+                                        ? "Chưa có lịch sử khám bệnh nào."
+                                        : "Không có dữ liệu phù hợp với ngày đã chọn."}
                                 </td>
                             </tr>
                         )}
