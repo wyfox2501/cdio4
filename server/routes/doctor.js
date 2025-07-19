@@ -44,11 +44,9 @@ router.get("/confirm_refuse", async function (req, res, next) {
 
         const now = new Date(); // thời gian hiện tại
         const validAppointments = [];
-
         // Lặp qua từng lịch
         for (const appt of result.rows) {
             const appointmentDate = new Date(appt.appointment_date); // assuming column name is appointment_date
-
             // Nếu ngày hẹn < hôm nay → cancel
             if (appointmentDate < now) {
                 await healthy.query(
@@ -87,7 +85,7 @@ router.get('/history',async function(req, res, next) {
   try {
     const doctorId = req.session.user.id; // Lấy doctorId từ session
     // const doctorId = req.params.id;
-    const result=await healthy.query("SELECT * FROM appointments WHERE doctor_id = $1 and status=$2", [doctorId, 'successfully']);
+    const result=await healthy.query("SELECT * FROM appointments s, patient p, users u WHERE s.patient_id=p.user_id and p.user_id=u.user_id and doctor_id = $1 and status=$2", [doctorId, 'successfully']);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /doctor/history:", error);
@@ -196,13 +194,15 @@ router.put("/", upload.none(), async function (req, res, next) {
 // Thêm cron job để cập nhật trạng thái hoạt động
 // tự động cập nhập lúc 00h01p sáng mỗi ngày
 // const cron = require('node-cron');
-cron.schedule("1 0 * * *", async () => {
+cron.schedule("*/1 * * * *", async () => {
     try {
         await healthy.query(`
       UPDATE appointments
       SET status = 'successfully'
-      WHERE status = confirmed AND appointment_date < CURDATE()
+      WHERE status = 'confirmed' AND appointment_date < CURRENT_DATE
     `);
+    console.log('cập nhập lịch');
+    
     } catch (err) {
         console.error("Cron error:", err);
     }

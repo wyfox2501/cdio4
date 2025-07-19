@@ -80,7 +80,7 @@ const adminDataHeader = [
   {
     id: 2,
     title: "báo cáo & thống kê",
-    url: "/admin/duyet-lich-kham",
+    url: "/admin/statistical_report",
   },
   {
     id: 3,
@@ -186,8 +186,8 @@ function Header() {
         <div class="right-menu">
             <img src={`http://localhost:5000/images/${user?.avata || 'avatar.webp'}`} alt="" />
             <div class="drop-menu">
-              {/* <a href="">Thông Tin Cá Nhân</a>
-              <a href="">Thông Tin Lịch Hẹn</a> */}
+              {/* <a href="">Thông Tin Cá Nhân</a> */}
+              {user?.role==='patient' && <Link to='/thong-tin-kham-benh'>Thông Tin Lịch Hẹn</Link>}
               <a onClick={signOut}>Đăng Xuất</a>
             </div>
           </div>

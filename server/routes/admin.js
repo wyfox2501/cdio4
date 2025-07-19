@@ -66,4 +66,33 @@ router.put('/unlock/:id', async function(req, res, next) {
     res.status(500).json({ message: "Internal server error" });
   }
 })
+// thống kê
+router.get('/statistic', async function(req, res, next) {
+   try {
+    const totalFinish = await healthy.query("SELECT COUNT(*) FROM appointments");
+    const done = await healthy.query("SELECT COUNT(*) FROM appointments WHERE status = 'successfully'");
+    const canceled = await healthy.query("SELECT COUNT(*) FROM appointments WHERE status IN ('canceled', 'refused')");
+    const pending = await healthy.query("SELECT COUNT(*) FROM appointments WHERE status = 'pending'");
+    const confirmed = await healthy.query("SELECT COUNT(*) FROM appointments WHERE status = 'confirmed'");
+    const totalAccount=await healthy.query("SELECT COUNT(*) FROM users ");
+    const totalAccountTrue=await healthy.query("SELECT COUNT(*) FROM users WHERE active='true'");
+    const totalAccountFalse=await healthy.query("SELECT COUNT(*) FROM users WHERE active='false'");
+    const totalAccountWait=await healthy.query("SELECT COUNT(*) FROM users WHERE active='wait'");
+
+    res.status(200).json({
+      total: parseInt(totalFinish.rows[0].count),
+      done: parseInt(done.rows[0].count),
+      canceled: parseInt(canceled.rows[0].count),
+      pending: parseInt(pending.rows[0].count),
+      confirmed: parseInt(confirmed.rows[0].count),
+      totalAccount: parseInt(totalAccount.rows[0].count),
+      totalAccountTrue: parseInt(totalAccountTrue.rows[0].count),
+      totalAccountFalse: parseInt(totalAccountFalse.rows[0].count),
+      totalAccountWait: parseInt(totalAccountWait.rows[0].count),
+    });
+  } catch (error) {
+    console.error("Error in GET /statistic:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 module.exports = router;

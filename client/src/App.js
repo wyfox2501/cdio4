@@ -21,11 +21,13 @@ import AppointmentConfirmation from "./features/customer/make_an_appointment/App
 import Schedule from "./features/customer/make_an_appointment/Schedule.jsx";
 import ProfileCustomer from "./features/customer/profileCustomer/profileCustomer.jsx";
 import Maneger_healthy from "./features/customer/maneger_healthy/Maneger_healthy.jsx";
+import Appointment_Informaition from "./features/customer/appointment_information/Appointment_Informaition.jsx";
 import Advise from "./features/customer/advise/adviseCustomer.jsx";
 //admin
 import Layout_admin from './features/admin/adminlayout.jsx';
 import Inadmin from './features/admin/inadmin/quanlyquyen.jsx';
 import UserAdmin from './features/admin/useradmin/quanlytaikhoan.jsx'
+import Statistical_report from './features/admin/statistical_report/Statistical_report.jsx'
 // layout
 import Login from "./features/auth/login & register/Login";
 import Register from "./features/auth/login & register/Register";
@@ -69,6 +71,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="role-manager" element={<Inadmin />} />
             <Route path="account_manager" element={<UserAdmin />} />
+            <Route path="statistical_report" element={<Statistical_report />} />
         </Route>
       </Route>
         <Route path="/" element={<PrivateRoute allowedRoles={"patient"}/>}> 
@@ -86,6 +89,7 @@ function App() {
                 <Route path="tu-van" element={<Advise />} />
                 <Route path="quan-li-tai-khoan" element={<ProfileCustomer />} />
                 <Route path="quan-li-ke-hoach" element={<Maneger_healthy />} />
+                <Route path="thong-tin-kham-benh" element={<Appointment_Informaition />} />
               </Route>
           </Route>
       </Routes>

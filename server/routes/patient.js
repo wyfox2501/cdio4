@@ -7,13 +7,24 @@ const healthy= require('../model/Heathy');
 router.get('/view_appointment', upload.none(), async function(req, res, next) {
   try {
     const customerId = req.session.user.id; // Lấy customerId từ session
-    const result = await healthy.query("SELECT * FROM appointments WHERE patient_id = $1", [customerId]);
+    const result = await healthy.query("SELECT * FROM appointments s, doctor d, users u WHERE s.doctor_id=d.user_id and d.user_id=u.user_id and patient_id = $1 and status != 'canceled' and status != 'refused' and status != 'successfully'", [customerId]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error in GET /customer/view_appointment:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
+// lấy lịch sử của lịch hẹn của customer (customer)
+router.get('/history',upload.none(), async function(req, res, next) {
+  try {
+    const customerId = req.session.user.id; // Lấy customerId từ session
+    const result = await healthy.query("SELECT * FROM appointments s, doctor d, users u WHERE s.doctor_id=d.user_id and d.user_id=u.user_id and patient_id = $1 AND (status = 'successfully' OR status = 'canceled' OR status = 'refused')", [customerId]);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error in GET /customer/history:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+})
 // lấy danh sách bác sĩ
 router.get('/view_doctor',upload.none(), async function(req, res, next) {
   try {

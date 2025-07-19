@@ -88,7 +88,7 @@ function AppointmentHistory() {
                                     <tr key={item.appointment_id || index}>
                                         <td>{index + 1}</td>
                                         <td>
-                                            {item.patient_name || "Không rõ"}
+                                            {item.username || "Không rõ"}
                                         </td>
                                         <td>
                                             {dateObj
@@ -98,15 +98,15 @@ function AppointmentHistory() {
                                                 : "Không rõ"}
                                         </td>
                                         <td>
-                                            {dateObj
+                                            {/* {dateObj
                                                 ? dateObj.toLocaleTimeString(
                                                       "vi-VN",
                                                       {
                                                           hour: "2-digit",
                                                           minute: "2-digit",
                                                       }
-                                                  )
-                                                : item.appointment_time ||
+                                                  ) */}
+                                                { item.time ||
                                                   "Không rõ"}
                                         </td>
                                         <td>{item.symptoms || "Không rõ"}</td>

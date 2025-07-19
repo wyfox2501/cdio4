@@ -45,75 +45,55 @@ function WorkSchedule() {
         setWeekDates(week);
     }, [currentDate]);
 
-    // 🔹 Lấy tên user từ session
     useEffect(() => {
         const fetchUserName = async () => {
             try {
                 const res = await fetch("http://localhost:5000/api/users/me", {
                     credentials: "include",
                 });
-                if (!res.ok) {
-                    console.warn("⚠️ Không lấy được user:", res.status);
-                    return;
-                }
+                if (!res.ok) return;
                 const data = await res.json();
-                console.log("👤 User:", data);
                 setUserName(data.name || "Bác sĩ");
             } catch (err) {
-                console.error("❌ Lỗi khi lấy user:", err);
+                console.error("Lỗi khi lấy user:", err);
             }
         };
         fetchUserName();
     }, []);
-    const [datahoure, setDataHoure] = useState([]);
-    // 🔹 Lấy lịch khi có userName
-    useEffect(() => {
-        if (!userName) return; // Chờ có tên rồi mới fetch
 
+    useEffect(() => {
+        if (!userName) return;
         const fetchSchedule = async () => {
             try {
                 const res = await fetch(
                     "http://localhost:5000/api/doctor/view_work_schedule",
-                    { credentials: "include" }
+                    {
+                        credentials: "include",
+                    }
                 );
-
-                if (!res.ok) {
-                    console.warn("⚠️ Backend trả về lỗi HTTP:", res.status);
-                    return;
-                }
-
+                if (!res.ok) return;
                 const data = await res.json();
-                console.log('data',data);
-                setDataHoure(data[0]);
                 const formatted = data.map((item) => {
-                    const startUTC =
-                        new Date(item.datetime_start).getUTCHours() + 7;
-                    const endUTC =
-                        new Date(item.datetime_end).getUTCHours() + 7;
-                    const start = startUTC >= 24 ? startUTC - 24 : startUTC;
-                    const end = endUTC >= 24 ? endUTC - 24 : endUTC;
-
+                    const start = new Date(item.datetime_start).getHours();
+                    const end = new Date(item.datetime_end).getHours();
                     const hours = [];
                     for (let i = start; i < end; i++) {
                         hours.push(`${i}H`);
                     }
                     return {
                         id: item.schedule_id,
-                        doctor: userName, // ✅ dùng tên user thay "Bác sĩ"
+                        doctor: userName,
                         date: item.date,
                         hour: hours,
                         datetime_start: item.datetime_start,
                         datetime_end: item.datetime_end,
                     };
                 });
-
-                console.log("✅ Lịch từ API:", formatted);
                 setSchedule(formatted);
             } catch (error) {
-                console.error("❌ Lỗi khi gọi API:", error);
+                console.error("Lỗi khi gọi API:", error);
             }
         };
-
         fetchSchedule();
     }, [userName]);
 
@@ -123,70 +103,47 @@ function WorkSchedule() {
             month: "2-digit",
             year: "numeric",
         });
+
     const isSameDay = (d1, d2) =>
         d1.getFullYear() === d2.getFullYear() &&
         d1.getMonth() === d2.getMonth() &&
         d1.getDate() === d2.getDate();
+
     const goToNextWeek = () => {
         const next = new Date(currentDate);
         next.setDate(currentDate.getDate() + 7);
         setCurrentDate(next);
     };
+
     const goToPreviousWeek = () => {
         const prev = new Date(currentDate);
         prev.setDate(currentDate.getDate() - 7);
         setCurrentDate(prev);
     };
 
-    // const handleDeleteClick = (date, hour, doctor) => {
-    //     const numericHour = parseInt(hour.replace("H", ""));
-    //     const formattedDate = new Date(date).toDateString();
-    //     setSelectedDelete({
-    //         date: formattedDate,
-    //         timeStart: numericHour,
-    //         timeEnd: numericHour + 1,
-    //         doctor,
-    //     });
-    // };
-const handleDeleteClick = (date, datetimeStart, datetimeEnd, doctor) => {
-    const startHour = new Date(datetimeStart).getUTCHours() + 7;
-    const endHour = new Date(datetimeEnd).getUTCHours() + 7;
+    const handleDeleteClick = (date, scheduleId, doctor) => {
+        setSelectedDelete({
+            date: new Date(date).toDateString(),
+            doctor,
+            id: scheduleId,
+        });
+    };
 
-    setSelectedDelete({
-        date: new Date(date).toDateString(),
-        timeStart: startHour >= 24 ? startHour - 24 : startHour,
-        timeEnd: endHour >= 24 ? endHour - 24 : endHour,
-        doctor,
-    });
-};
     const DeletePopup = ({ dataDelete, onClose, schedule, setSchedule }) => {
+        const current = schedule.find((s) => s.id === dataDelete.id);
+
         const [data] = useState({
             ngay: dataDelete.date || "",
-            thoigianstart: dataDelete.timeStart || "",
-            thoigianend: dataDelete.timeEnd || "",
+            thoigianstart: new Date(current?.datetime_start).getHours(),
+            thoigianend: new Date(current?.datetime_end).getHours(),
             doctor: dataDelete.doctor || "",
         });
 
         const handleSubmit = async (e) => {
             e.preventDefault();
-            const matched = schedule.find((item) => {
-                const isSameDate =
-                    new Date(item.date).toDateString() ===
-                    new Date(dataDelete.date).toDateString();
-                return (
-                    isSameDate &&
-                    item.doctor === dataDelete.doctor &&
-                    item.hour.includes(`${dataDelete.timeStart}H`)
-                );
-            });
-            if (!matched) {
-                alert("Không tìm thấy lịch để xóa!");
-                return;
-            }
-
             try {
                 const res = await fetch(
-                    `http://localhost:5000/api/doctor/${matched.id}`,
+                    `http://localhost:5000/api/doctor/${dataDelete.id}`,
                     {
                         method: "DELETE",
                         credentials: "include",
@@ -197,25 +154,12 @@ const handleDeleteClick = (date, datetimeStart, datetimeEnd, doctor) => {
                     return;
                 }
 
-                const updatedSchedule = schedule
-                    .map((item) => {
-                        const isSameDate =
-                            new Date(item.date).toDateString() ===
-                            new Date(dataDelete.date).toDateString();
-                        if (isSameDate && item.doctor === dataDelete.doctor) {
-                            const newHourList = item.hour.filter(
-                                (h) =>
-                                    parseInt(h.replace("H", "")) !==
-                                    dataDelete.timeStart
-                            );
-                            return { ...item, hour: newHourList };
-                        }
-                        return item;
-                    })
-                    .filter((item) => item.hour.length > 0);
-
+                const updatedSchedule = schedule.filter(
+                    (item) => item.id !== dataDelete.id
+                );
                 setSchedule(updatedSchedule);
-                alert("✅ Xóa thành công!");
+
+                alert("✅ Xóa toàn bộ khung giờ thành công!");
                 onClose();
             } catch (err) {
                 console.error("❌ Lỗi khi gọi API DELETE:", err);
@@ -328,9 +272,8 @@ const handleDeleteClick = (date, datetimeStart, datetimeEnd, doctor) => {
                                                         className="delete-button"
                                                         onClick={() =>
                                                             handleDeleteClick(
-                                                                date,
-                                                                item.datetime_start,
-                                                                item.datetime_end,
+                                                                item.date,
+                                                                item.id,
                                                                 item.doctor
                                                             )
                                                         }
